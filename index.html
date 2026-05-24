@@ -119,7 +119,11 @@
             font-size: 0.7rem;
             word-break: break-all;
         }
-        .vip-icon { color: #ffd700; margin-left: 4px; font-size: 0.8rem; }
+        .vip-icon {
+            color: #ffd700;
+            margin-left: 4px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -153,7 +157,7 @@
     const BOT_USERNAME = "minermine1_bot";
     const SUPPORT_CHAT = "@sup_miner_help";
     
-    // ==================== 2. FIREBASE ====================
+    // ==================== 2. FIREBASE CONFIG ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA8KWTdXPxfwniTrPqvea5zAc_ZMmjr5Yc",
         authDomain: "shaxter-7bdc7.firebaseapp.com",
@@ -271,14 +275,6 @@
             updateUIAll();
         });
         
-        // Премиум-задания (глобальные)
-        const tasksSnap = await database.ref('premiumTasks').once('value');
-        if (tasksSnap.exists()) gameData.premiumTasks = Object.values(tasksSnap.val());
-        database.ref('premiumTasks').on('value', (snap) => {
-            gameData.premiumTasks = snap.exists() ? Object.values(snap.val()) : [];
-            renderPremiumTasks();
-        });
-        
         startGameLoop();
         renderFullUI();
         document.getElementById('loadingScreen').style.display = 'none';
@@ -301,7 +297,7 @@
         database.ref('users/' + userId).update(updates);
     }
     
-    // ==================== 5. ИГРОВАЯ ЛОГИКА ====================
+    // ==================== 5. ИГРОВАЯ ЛОГИКА (расширена) ====================
     const minersData = [
         null,
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec: 100/3600 },
@@ -378,7 +374,6 @@
                 gameData.miners[minerLevel] += count;
                 showToast(`✅ Прогрессивное задание ${pt.level+1} выполнено! Получено +${count} шахтёров ${minerLevel} уровня.`);
                 pt.level++;
-                // Не обнуляем current, чтобы остаток перешёл на следующий уровень
                 saveUserData();
                 renderMiners();
             }
@@ -422,7 +417,7 @@
         updateUIAll();
     }
     
-    // Боксы и прочая логика (оставлены без изменений)
+    // Боксы и прочая логика (оставлена без изменений)
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
     function isProfitable() { return Math.random() < 0.05; }
     function bronzeDrop() {
@@ -592,7 +587,7 @@
         updateUIAll(); renderMiners(); saveUserData();
     }
     
-    // Премиум-задания (создание только админом, выполнение – кнопка)
+    // ==================== ПРЕМИУМ-ЗАДАНИЯ (ТОЛЬКО ДЛЯ АДМИНА) ====================
     async function createPremiumTask() {
         if (!isAdmin) return;
         let desc = prompt("Описание задания:");
@@ -605,11 +600,13 @@
         const newTask = { id: Date.now().toString(), desc, link, rewardCurrency: rewardType, rewardAmount, creatorId: ADMIN_ID, approvedBy: [] };
         await database.ref('premiumTasks/' + newTask.id).set(newTask);
         showToast("Премиум-задание создано");
+        if (document.getElementById("adminPremTasksList")) renderAdminPremTasks();
     }
     
     async function deletePremiumTask(taskId) {
         if (!isAdmin) return;
         if (confirm("Удалить задание?")) await database.ref('premiumTasks/' + taskId).remove();
+        if (document.getElementById("adminPremTasksList")) renderAdminPremTasks();
     }
     
     async function completePremiumTask(taskId) {
@@ -812,6 +809,16 @@
         }));
     }
     
+    function renderAdminPremTasks() {
+        const container = document.getElementById("adminPremTasksList");
+        if (!container) return;
+        database.ref('premiumTasks').once('value', snap => {
+            const tasks = snap.exists() ? Object.values(snap.val()) : [];
+            container.innerHTML = tasks.map(t => `<div>${t.desc} (${t.rewardAmount} ${t.rewardCurrency}) <button class="btn-secondary" data-del="${t.id}">Удалить</button></div>`).join('');
+            document.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => deletePremiumTask(btn.dataset.del)));
+        });
+    }
+    
     function renderAdminPanel() {
         if(!isAdmin) return;
         const profileDiv = document.getElementById("profilePanel");
@@ -862,14 +869,7 @@
         renderRequests();
     }
     
-    function renderAdminPremTasks() {
-        const container = document.getElementById("adminPremTasksList");
-        if (!container) return;
-        container.innerHTML = gameData.premiumTasks.map(t => `<div>${t.desc} (${t.rewardAmount} ${t.rewardCurrency}) <button class="btn-secondary" data-del="${t.id}">Удалить</button></div>`).join('');
-        document.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => deletePremiumTask(btn.dataset.del)));
-    }
-    
-    // ==================== ОТРИСОВКА UI ====================
+    // ==================== ОТРИСОВКА UI (задания: премиум – выше сюжетных) ====================
     function renderStoryTasks() {
         let cont = document.getElementById("storyTasksList");
         if(!cont) return;
@@ -887,17 +887,20 @@
         let cont = document.getElementById("premiumTasksList");
         if(!cont) return;
         cont.innerHTML = "";
-        if (gameData.premiumTasks && gameData.premiumTasks.length) {
-            gameData.premiumTasks.forEach(t => {
-                let div = document.createElement("div");
-                div.className = "task-card";
-                div.innerHTML = `<div><b>${t.desc}</b><br>Награда: ${t.rewardAmount} ${t.rewardCurrency}</div><button class="btn-secondary" data-task="${t.id}">Выполнить</button>`;
-                cont.appendChild(div);
-            });
-            document.querySelectorAll("[data-task]").forEach(btn => btn.addEventListener("click", () => completePremiumTask(btn.dataset.task)));
-        } else {
-            cont.innerHTML = "<div style='text-align:center;padding:20px;'>Нет активных премиум-заданий</div>";
-        }
+        database.ref('premiumTasks').once('value', snap => {
+            const tasks = snap.exists() ? Object.values(snap.val()) : [];
+            if (tasks.length) {
+                tasks.forEach(t => {
+                    let div = document.createElement("div");
+                    div.className = "task-card";
+                    div.innerHTML = `<div><b>${t.desc}</b><br>Награда: ${t.rewardAmount} ${t.rewardCurrency}</div><button class="btn-secondary" data-task="${t.id}">Выполнить</button>`;
+                    cont.appendChild(div);
+                });
+                document.querySelectorAll("[data-task]").forEach(btn => btn.addEventListener("click", () => completePremiumTask(btn.dataset.task)));
+            } else {
+                cont.innerHTML = "<div style='text-align:center;padding:20px;'>Нет активных премиум-заданий</div>";
+            }
+        });
     }
     
     function renderTop() {
@@ -910,7 +913,7 @@
                 for(let i=1;i<=7;i++) prod += (u.miners?.[i] || 0) * minersData[i].prodSec;
                 prod *= (u.prestigeMult || 1);
                 if(u.vipActive) prod *= 2;
-                users.push({ id: c.key, username: u.username, prod: prod, vip: u.vipActive });
+                users.push({ id: c.key, username: u.username, prod: prod, vip: u.vipActive, totalMined: u.totalMined || 0 });
             });
             users.sort((a,b) => b.prod - a.prod);
             let container = document.getElementById("topList");
