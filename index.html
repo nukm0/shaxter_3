@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miner's Empire — VIP Шахтёрская Империя</title>
+    <title>Miner's Empire — Престиж и Рефералы</title>
     <style>
         * {
             margin: 0;
@@ -15,29 +15,27 @@
         body {
             min-height: 100vh;
             background: linear-gradient(145deg, #0a1a12 0%, #030b06 100%);
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Roboto', sans-serif;
-            padding: 12px;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            padding: 10px;
             color: #fff3e0;
         }
 
-        /* главная карточка */
         .game-container {
             max-width: 550px;
             margin: 0 auto;
-            background: rgba(10, 20, 14, 0.85);
+            background: rgba(10, 20, 14, 0.9);
             backdrop-filter: blur(16px);
-            border-radius: 2rem;
+            border-radius: 1.8rem;
             border: 1px solid rgba(255, 200, 100, 0.4);
             box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
             overflow: hidden;
         }
 
-        /* панель валют — горизонтальный скролл для мобилы */
         .currency-strip {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px 16px;
+            gap: 6px;
+            padding: 10px 12px;
             background: rgba(0, 0, 0, 0.5);
             border-bottom: 1px solid #f3b33d40;
             justify-content: space-between;
@@ -45,286 +43,144 @@
 
         .currency-item {
             background: linear-gradient(135deg, #2a3d32, #1c2c22);
-            border-radius: 40px;
-            padding: 4px 12px;
+            border-radius: 30px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 8px black;
+            gap: 5px;
             flex: 1;
-            min-width: 85px;
             justify-content: center;
         }
 
-        .currency-icon {
-            font-size: 1.4rem;
-            filter: drop-shadow(0 1px 2px black);
-        }
+        .currency-icon { font-size: 1.2rem; }
+        .currency-value { font-size: 1rem; font-weight: bold; font-family: monospace; }
 
-        .currency-value {
-            font-size: 1.1rem;
-            font-weight: 800;
-            font-family: monospace;
-            line-height: 1;
-        }
-
-        /* навигация табы — под большие пальцы */
         .nav-tabs {
             display: flex;
             background: #0e1913;
-            padding: 0 8px;
+            padding: 0 6px;
             gap: 2px;
             overflow-x: auto;
-            scrollbar-width: thin;
         }
 
         .nav-btn {
             background: #1f3027;
             border: none;
-            padding: 12px 8px;
-            font-size: 0.8rem;
+            padding: 10px 5px;
+            font-size: 0.7rem;
             font-weight: bold;
             color: #efdfa8;
             cursor: pointer;
             white-space: nowrap;
             flex: 1;
-            border-radius: 20px 20px 0 0;
-            transition: 0.1s;
+            border-radius: 16px 16px 0 0;
         }
 
         .nav-btn.active {
             background: #f3b33d;
             color: #1f2c1a;
-            box-shadow: inset 0 -2px 0 #ffdf9a;
         }
 
-        /* панели */
         .panel {
             display: none;
-            padding: 16px;
-            animation: fadeIn 0.2s ease;
+            padding: 14px;
+            animation: fade 0.2s;
         }
+        .panel.active-panel { display: block; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-        .panel.active-panel {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-
-        /* виджет сбора и склад */
         .collect-card {
             background: #15261fcc;
-            border-radius: 1.5rem;
-            padding: 12px;
-            margin-bottom: 16px;
+            border-radius: 1.2rem;
+            padding: 10px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
         }
-
         .collect-btn {
             background: radial-gradient(circle at 30% 20%, #ffd966, #dc9e2c);
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 40px;
             font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
         }
-
-        .storage-info {
-            font-size: 0.75rem;
-            background: #00000066;
-            padding: 4px 12px;
-            border-radius: 30px;
-        }
-
-        /* сетка шахтёров */
-        .miners-grid {
+        .exchange-row {
+            background: #0e1c16;
+            border-radius: 1rem;
+            padding: 8px;
+            margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .miner-card {
-            background: rgba(28, 42, 33, 0.95);
-            border-radius: 1.2rem;
-            padding: 12px;
-            border-left: 6px solid #f5b042;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: space-between;
         }
-
-        .miner-info {
-            flex: 2;
-        }
-
-        .miner-name {
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .miner-stats {
-            font-size: 0.7rem;
-            color: #ddc;
-        }
-
-        .btn-buy {
-            background: #f5a623;
+        input {
+            background: #2a3e33;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 10px;
             border-radius: 30px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        /* магазин боксов — сетка */
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .box-card {
-            background: #1f3a2e;
-            border-radius: 1.2rem;
-            padding: 12px;
+            color: white;
+            width: 90px;
             text-align: center;
-            cursor: pointer;
-            border: 1px solid #f1c232;
-            transition: 0.05s linear;
         }
-
-        .box-card:active {
-            transform: scale(0.97);
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-
-        .box-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .box-price {
-            font-size: 0.8rem;
-            background: #00000077;
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: 30px;
-            margin-top: 6px;
-        }
-
-        /* задания */
-        .tasks-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .task-item {
-            background: #1a2c23;
-            border-radius: 1.2rem;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .task-progress {
-            background: #2e4a3a;
-            border-radius: 20px;
-            height: 8px;
-            width: 120px;
-            overflow: hidden;
-        }
-
-        .task-fill {
-            background: gold;
-            width: 0%;
-            height: 100%;
-        }
-
-        .claim-btn {
+        button {
             background: #e09d32;
             border: none;
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 30px;
-            font-size: 0.7rem;
             font-weight: bold;
+            cursor: pointer;
         }
+        .miners-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .miner-card {
+            background: rgba(28, 42, 33, 0.95);
+            border-radius: 1rem;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-buy { background: #f5a623; padding: 5px 12px; border-radius: 30px; }
 
-        /* вип-статус и ежедневный бонус */
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .box-card {
+            background: #1f3a2e;
+            border-radius: 1rem;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #f1c232;
+            cursor: pointer;
+        }
+        .tasks-list { display: flex; flex-direction: column; gap: 8px; }
+        .task-item {
+            background: #1a2c23;
+            border-radius: 1rem;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         .vip-banner {
             background: linear-gradient(95deg, #d4af37, #b8860b);
-            border-radius: 1.5rem;
-            padding: 8px 12px;
-            margin-bottom: 16px;
+            border-radius: 1.2rem;
+            padding: 6px 10px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #1f2a1a;
             font-weight: bold;
         }
-
-        .daily-btn, .vip-claim {
-            background: #2c2b1f;
-            color: #ffecb3;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-        }
-
-        /* обменник */
-        .exchange-row {
-            background: #0e1c16;
-            border-radius: 1.2rem;
-            padding: 10px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        input {
-            background: #2a3e33;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 40px;
-            color: white;
-            width: 100px;
-            text-align: center;
-        }
-
-        button {
-            background: #e09d32;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .footer-note {
-            text-align: center;
-            font-size: 0.6rem;
-            margin-top: 16px;
-            opacity: 0.6;
-        }
-
-        /* модалка для боксов */
         .modal {
             position: fixed;
             top: 0; left: 0;
@@ -338,17 +194,24 @@
         }
         .modal-content {
             background: #1f2c24;
-            border-radius: 2rem;
-            max-width: 320px;
+            border-radius: 1.5rem;
+            max-width: 300px;
             width: 85%;
-            padding: 1.2rem;
+            padding: 1rem;
             border: 1px solid gold;
         }
+        .ref-link {
+            background: #2a3e33;
+            padding: 6px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            word-break: break-all;
+        }
+        .footer-note { text-align: center; font-size: 0.6rem; margin-top: 12px; opacity: 0.6; }
     </style>
 </head>
 <body>
 <div class="game-container">
-    <!-- валюты -->
     <div class="currency-strip">
         <div class="currency-item"><span class="currency-icon">💎</span><span class="currency-value" id="diamondsVal">0</span></div>
         <div class="currency-item"><span class="currency-icon">💰</span><span class="currency-value" id="goldVal">0</span></div>
@@ -357,7 +220,6 @@
         <div class="currency-item"><span class="currency-icon">💸</span><span class="currency-value" id="superBucksVal">0</span></div>
     </div>
 
-    <!-- табы -->
     <div class="nav-tabs">
         <button class="nav-btn active" data-panel="miners">⛏️ Шахтёры</button>
         <button class="nav-btn" data-panel="shop">📦 Магазин</button>
@@ -366,70 +228,85 @@
         <button class="nav-btn" data-panel="profile">👤 Профиль</button>
     </div>
 
-    <!-- панель шахтёров -->
+    <!-- Шахтёры -->
     <div id="minersPanel" class="panel active-panel">
-        <div class="vip-banner" id="vipBanner">
-            <span>🎖️ VIP СТАТУС</span>
-            <span id="vipTimer">не активен</span>
-        </div>
+        <div class="vip-banner" id="vipBanner"><span>🎖️ VIP</span><span id="vipTimer">не активен</span></div>
         <div class="collect-card">
-            <div><span>📦 Накоплено: <strong id="pendingDisplay">0</strong> 💎</span><br><span class="storage-info" id="storageLimit">Склад: 0 / 3ч</span></div>
+            <div><span>📦 Накоплено: <strong id="pendingDisplay">0</strong> 💎</span><br><span id="storageLimit">Склад: 0 / 3ч</span></div>
             <button class="collect-btn" id="collectBtn">Собрать</button>
         </div>
         <div class="exchange-row">
             <span>100💎 → 1💰</span>
-            <input type="number" id="exchangeDiamondInput" placeholder="Алмазы" value="100" step="100">
-            <button id="exchangeGoldBtn">Обмен</button>
+            <input type="number" id="exchangeInput" placeholder="Алмазы" value="100">
+            <button id="exchangeBtn">Обменять</button>
+            <button id="exchangeAllBtn">Всё</button>
         </div>
         <div class="exchange-row">
             <span>1.25💰 → 1💸</span>
-            <input type="number" id="superBuyInput" placeholder="Золото" value="125" step="125">
-            <button id="buySuperBtn">Купить Супер-Баксы</button>
+            <input type="number" id="superBuyInput" placeholder="Золото" value="125">
+            <button id="buySuperBtn">Купить</button>
         </div>
         <div class="miners-grid" id="minersList"></div>
     </div>
 
-    <!-- магазин боксов -->
+    <!-- Магазин боксов -->
     <div id="shopPanel" class="panel">
         <div class="shop-grid" id="boxesContainer"></div>
-        <div class="footer-note">Нажми на бокс → увидишь что внутри. Шансы зависят от редкости.</div>
+        <div class="footer-note">Шанс выиграть больше стоимости — 5%. Остальные 95% — убыток.</div>
     </div>
 
-    <!-- задания -->
-    <div id="tasksPanel" class="panel">
-        <div class="tasks-list" id="tasksContainer"></div>
-        <div class="footer-note">Сложные задания дают нефть!</div>
-    </div>
+    <!-- Задания -->
+    <div id="tasksPanel" class="panel"><div class="tasks-list" id="tasksContainer"></div></div>
 
-    <!-- нефтяной остров -->
+    <!-- Нефтяной остров -->
     <div id="islandPanel" class="panel">
-        <div style="background: #1a3a2e; border-radius: 1.5rem; padding: 1rem;">
+        <div style="background:#1a3a2e; border-radius:1.2rem; padding:1rem;">
             <h3>🌴 Нефтяной остров</h3>
             <p>Открытие: 100 🛢️. Экспедиция 1 раз в 12ч.</p>
             <div id="islandStatus"></div>
-            <button id="buyIslandBtn" class="collect-btn" style="background:#8b6b2a; margin-top:8px;">🏝️ Купить (100 нефти)</button>
+            <button id="buyIslandBtn" class="collect-btn" style="background:#8b6b2a;">🏝️ Купить (100 нефти)</button>
             <button id="expeditionBtn" class="collect-btn" style="background:#9b7e3a;" disabled>🚢 Экспедиция</button>
-            <div id="expeditionResult" style="margin-top: 10px; font-size:0.8rem;"></div>
         </div>
     </div>
 
-    <!-- профиль, ежедневный бонус, вип клад -->
+    <!-- Профиль + Престиж + Рефералы -->
     <div id="profilePanel" class="panel">
-        <div class="vip-banner" style="background:#2a4a35; justify-content:center;">🎁 ЕЖЕДНЕВНЫЕ БОНУСЫ</div>
-        <button id="dailyBonusBtn" class="collect-btn" style="width:100%; margin-bottom:12px;">📅 Забрать ежедневный бонус</button>
-        <button id="vipChestBtn" class="collect-btn" style="width:100%; margin-bottom:12px; background:#b8860b;">🎖️ VIP КЛАД (раз в день)</button>
-        <div style="background:#15261f; border-radius:1rem; padding:12px; margin-top:8px;">
-            <h4>📊 Статистика</h4>
-            <div>💎 Всего добыто: <span id="totalMinedStat">0</span></div>
-            <div>⛏️ Шахтёров куплено: <span id="totalMinersStat">0</span></div>
-            <div>🎁 Боксов открыто: <span id="totalBoxesStat">0</span></div>
-            <button id="resetBtn" style="background:#6b3e1a; margin-top:12px;">⚠️ Сброс игры</button>
+        <div class="vip-banner" style="background:#2a4a35;">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div>
+        <button id="dailyBonusBtn" class="collect-btn" style="width:100%; margin-bottom:8px;">📅 Забрать бонус</button>
+        <button id="vipChestBtn" class="collect-btn" style="width:100%; margin-bottom:8px; background:#b8860b;">🎖️ VIP КЛАД (раз в день)</button>
+        
+        <div style="background:#15261f; border-radius:1rem; padding:10px; margin-top:8px;">
+            <h4>📊 Престиж</h4>
+            <div>Множитель дохода: x<span id="prestigeMult">1.00</span></div>
+            <button id="prestigeResetBtn" class="collect-btn" style="background:#5a3e1a;">💸 СБРОС ЗА 50 💵 (увеличит доход)</button>
+            <div style="font-size:0.7rem;">*Сброс обнуляет алмазы, золото, супер-баксы, шахтёров, но сохраняет нефть и 💵 баксы, а также множитель дохода растёт.</div>
+        </div>
+
+        <div style="background:#15261f; border-radius:1rem; padding:10px; margin-top:12px;">
+            <h4>👥 Реферальная система</h4>
+            <div>⏱ Время в игре: <span id="playTime">0</span> сек</div>
+            <div>👥 Рефералов: <span id="refCount">0</span></div>
+            <div>💵 Заработано с донатов рефералов: <span id="refEarnings">0</span> 💵</div>
+            <div class="ref-link" id="refLink"></div>
+            <button id="copyRefBtn" style="margin-top:6px;">📋 Копировать ссылку</button>
+            <div class="footer-note">По вашей ссылке друг получает +5000💰, вы +5000💰 и 5% от его донатов (💵).</div>
+        </div>
+
+        <div style="background:#15261f; border-radius:1rem; padding:10px; margin-top:12px;">
+            <h4>💎 Тестовое пополнение (для разработки)</h4>
+            <button id="addDiamondsBtn" class="collect-btn" style="background:#2e6b47;">💎 +1000 алмазов</button>
+            <button id="addBucksBtn" class="collect-btn" style="background:#2e6b47;">💵 +1000 донатных баксов</button>
+        </div>
+
+        <div style="background:#15261f; border-radius:1rem; padding:10px; margin-top:12px;">
+            <h4>⚠️ Сброс игры (полный)</h4>
+            <button id="fullResetBtn" style="background:#6b3e1a;">🔥 Полный сброс всего прогресса</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ======================= ДАННЫЕ ШАХТЁРОВ (в час → в сек) =======================
+    // ========== ДАННЫЕ ШАХТЁРОВ ==========
     const minersData = [
         null,
         { level:1, name:"Шахтёр Lv.1",  diamondsPerHour:100,  costGold:1000,  prodSec: 100/3600 },
@@ -441,53 +318,51 @@
         { level:7, name:"Шахтёр Lv.7",  diamondsPerHour:100000,costGold:300000,prodSec: 100000/3600 }
     ];
 
-    // состояние игры
     let game = {
-        diamonds: 0,
-        gold: 10000,
-        oil: 0,
-        bucks: 0,
-        superBucks: 0,
+        diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
         miners: [0,0,0,0,0,0,0,0],
         pendingDiamonds: 0,
         totalMinedEver: 0,
         totalGoldSpent: 0,
         totalBoxesOpened: 0,
         totalOilFromIsland: 0,
-        // VIP
         vipActive: false,
-        vipExpireTime: 0,      // timestamp окончания
+        vipExpireTime: 0,
         lastDailyBonus: 0,
         lastVipChest: 0,
-        // остров
         islandUnlocked: false,
         lastExpedition: 0,
-        // задания (прогресс)
+        prestigeMult: 1.0,       // множитель дохода шахтёров (растёт при сбросе)
+        playTimeSec: 0,          // общее время в игре
+        referralCode: "",        // уникальный код пользователя
+        referredBy: "",          // кто пригласил (код)
+        referrals: [],           // массив кодов приглашённых
+        refEarningsBucks: 0,     // заработано с донатов рефералов
         tasksDone: { mine:0, buy:0, openBox:0, oilCollect:0 }
     };
 
-    // ========== ЗАДАНИЯ (сложные + нефть) ==========
+    // Задания
     let tasksList = [
-        { id:0, name:"⛏️ Горняк-профи", desc:"Собрать 5000 алмазов", need:5000, current:0, rewardGold:200, rewardOil:0, rewardSuper:0, type:"mine" },
+        { id:0, name:"⛏️ Горняк", desc:"Собрать 5000 алмазов", need:5000, current:0, rewardGold:200, rewardOil:0, rewardSuper:0, type:"mine" },
         { id:1, name:"🏗️ Магнат", desc:"Купить 10 шахтёров", need:10, current:0, rewardGold:500, rewardOil:0, rewardSuper:10, type:"buy" },
         { id:2, name:"🎁 Коллекционер", desc:"Открыть 5 боксов", need:5, current:0, rewardGold:300, rewardOil:0, rewardSuper:5, type:"openBox" },
-        { id:3, name:"🛢️ Нефтяной барон", desc:"Добыть 2 нефти (редко)", need:2, current:0, rewardGold:0, rewardOil:1, rewardSuper:0, type:"oilCollect" }
+        { id:3, name:"🛢️ Нефтяной барон", desc:"Добыть 2 нефти", need:2, current:0, rewardGold:0, rewardOil:1, rewardSuper:0, type:"oilCollect" }
     ];
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     function getTotalProdPerSec() {
         let total = 0;
         for(let i=1;i<=7;i++) total += game.miners[i] * minersData[i].prodSec;
-        // VIP удваивает добычу шахтёров
+        total *= game.prestigeMult;
         if(game.vipActive) total *= 2;
         return total;
     }
 
-    // максимальная вместимость склада (3 часа в секундах)
     function getMaxStorage() {
         let prod = getTotalProdPerSec();
         if(prod <= 0) return 0;
-        let maxSec = 3 * 3600; // 3 часа
+        let maxSec = 3 * 3600;
+        if(game.vipActive) return Infinity;
         return prod * maxSec;
     }
 
@@ -496,30 +371,26 @@
         let now = Date.now();
         let delta = Math.min(5, (now - lastUpdate) / 1000);
         if(delta <= 0) return;
-        let prod = getTotalProdPerSec();
-        let earn = prod * delta;
+        let earn = getTotalProdPerSec() * delta;
         if(earn > 0) {
             let maxStore = getMaxStorage();
-            // бесконечный склад если VIP
-            if(game.vipActive) maxStore = Infinity;
             let newPending = game.pendingDiamonds + earn;
             if(newPending > maxStore && maxStore !== Infinity) newPending = maxStore;
             game.pendingDiamonds = newPending;
         }
         lastUpdate = now;
         updateUI();
-        updateTasks('mine', earn); // прогресс заданий по добыче
+        updateTasks('mine', earn);
     }
 
     function collectDiamonds() {
         if(game.pendingDiamonds <= 0) { showToast("Нет накопленных алмазов"); return; }
         let toAdd = Math.floor(game.pendingDiamonds);
-        if(toAdd <= 0) toAdd = 1;
         game.diamonds += toAdd;
         game.totalMinedEver += toAdd;
-        game.pendingDiamonds -= toAdd;
+        game.pendingDiamonds = 0;
         updateUI();
-        showToast(`+${toAdd} 💎 собрано!`);
+        showToast(`+${toAdd} 💎`);
         saveGame();
     }
 
@@ -530,135 +401,174 @@
             game.miners[level]++;
             game.totalGoldSpent += price;
             updateTasks('buy', 1);
-            updateUI();
-            renderMiners();
+            updateUI(); renderMiners();
             showToast(`Нанят ${minersData[level].name}`);
             saveGame();
-        } else showToast(`Не хватает золота! Нужно ${price}💰`);
+        } else showToast(`Нужно ${price}💰`);
     }
 
-    function exchangeDiamondsToGold() {
-        let input = document.getElementById("exchangeDiamondInput");
+    function exchangeAll() {
+        if(game.diamonds < 100) { showToast("Минимум 100 алмазов"); return; }
+        let amount = Math.floor(game.diamonds / 100) * 100;
+        if(amount === 0) return;
+        let goldGet = amount / 100;
+        game.diamonds -= amount;
+        game.gold += goldGet;
+        updateUI();
+        showToast(`-${amount}💎 +${goldGet}💰`);
+        saveGame();
+    }
+
+    function exchangeDiamonds() {
+        let input = document.getElementById("exchangeInput");
         let amount = parseInt(input.value);
         if(isNaN(amount) || amount < 100) { showToast("От 100 алмазов"); return; }
         if(game.diamonds >= amount) {
-            let goldGet = Math.floor(amount / 100);
+            let goldGet = amount / 100;
             game.diamonds -= amount;
             game.gold += goldGet;
             updateUI();
-            showToast(`-${amount}💎 +${goldGet}💰`);
             saveGame();
-        } else showToast("Не хватает алмазов");
+            showToast(`-${amount}💎 +${goldGet}💰`);
+        } else showToast("Не хватает");
     }
 
     function buySuperBucks() {
         let input = document.getElementById("superBuyInput");
-        let goldAmount = parseInt(input.value);
-        if(isNaN(goldAmount) || goldAmount < 125) { showToast("Минимум 125 золота"); return; }
-        let sbGet = Math.floor(goldAmount / 1.25);
-        if(game.gold >= goldAmount) {
-            game.gold -= goldAmount;
+        let goldAmt = parseInt(input.value);
+        if(isNaN(goldAmt) || goldAmt < 125) { showToast("Минимум 125 золота"); return; }
+        let sbGet = Math.floor(goldAmt / 1.25);
+        if(game.gold >= goldAmt) {
+            game.gold -= goldAmt;
             game.superBucks += sbGet;
             updateUI();
-            showToast(`+${sbGet} 💸 Супер-Баксов`);
+            showToast(`+${sbGet} 💸`);
             saveGame();
-        } else showToast("Недостаточно золота");
+        } else showToast("Не хватает золота");
     }
 
-    // ========== БОКСЫ (описание и дроп) ==========
-    const boxes = {
-        bronze: { name:"📦 Бронзовый клад", price:119, currency:"superBucks", desc:"💰до10000 💎до100k 💵до400 ⛏2ур до3 💸до150", drops:()=>bronzeDrop() },
-        silver: { name:"📦 Серебряный клад", price:149, currency:"superBucks", desc:"💰до30000 💎до250k 💵до700 ⛏3ур до3 💸до200", drops:()=>silverDrop() },
-        golden: { name:"📦 Золотой клад", price:229, currency:"superBucks", desc:"💰до50000 💎до500k 💵до1000 ⛏5ур до5 💸до500", drops:()=>goldenDrop() },
-        starter: { name:"🔥 StarterPack", price:99, currency:"superBucks", desc:"💰до70k 💎до500k 💵до1000 ⛏6ур(1шт) 5ур(3) 4ур(5) 3ур(5) 💸до500", drops:()=>starterDrop() },
-        oilChest: { name:"🛢 Нефтяной клад", price:149, currency:"superBucks", desc:"Нефть до300, золото до10000, баксы до1000", drops:()=>oilChestDrop() }
-    };
+    // ========== БОКСЫ (окупаемость 5%) ==========
+    function isProfitable(price, rewardValue) {
+        return Math.random() < 0.05; // 5% шанс окупиться с хорошим профитом
+    }
 
-    function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
-
-    function bronzeDrop() {
+    function openBoxBronze() {
+        let priceSuper = 119;
+        if(game.superBucks < priceSuper) { showToast(`Нужно ${priceSuper} 💸`); return false; }
+        game.superBucks -= priceSuper;
         let rewards = [];
-        if(Math.random()<0.9) { let g=randomRange(500,10000); game.gold+=g; rewards.push(`💰 +${g}`); }
-        if(Math.random()<0.85) { let d=randomRange(1000,100000); game.diamonds+=d; rewards.push(`💎 +${d}`); }
-        if(Math.random()<0.7) { let b=randomRange(20,400); game.bucks+=b; rewards.push(`💵 +${b}`); }
-        if(Math.random()<0.5) { let sb=randomRange(10,150); game.superBucks+=sb; rewards.push(`💸 +${sb}`); }
-        if(Math.random()<0.3) { let cnt=randomRange(1,3); game.miners[2]+=cnt; rewards.push(`⛏ +${cnt} шахтёр 2ур`); }
-        return rewards;
-    }
-    function silverDrop() { /* аналогично, но с 3 уровнем */
-        let r=[];
-        if(Math.random()<0.85) { r.push(`💰 +${randomRange(2000,30000)}`); game.gold+=randomRange(2000,30000); }
-        if(Math.random()<0.8) { let d=randomRange(5000,250000); game.diamonds+=d; r.push(`💎 +${d}`); }
-        if(Math.random()<0.65) { let b=randomRange(50,700); game.bucks+=b; r.push(`💵 +${b}`); }
-        if(Math.random()<0.55) { let sb=randomRange(30,200); game.superBucks+=sb; r.push(`💸 +${sb}`); }
-        if(Math.random()<0.35) { let cnt=randomRange(1,3); game.miners[3]+=cnt; r.push(`⛏ +${cnt} шахтёр 3ур`); }
-        return r;
-    }
-    function goldenDrop() {
-        let r=[];
-        if(Math.random()<0.8) { let g=randomRange(5000,50000); game.gold+=g; r.push(`💰 +${g}`); }
-        if(Math.random()<0.75) { let d=randomRange(20000,500000); game.diamonds+=d; r.push(`💎 +${d}`); }
-        if(Math.random()<0.6) { let b=randomRange(100,1000); game.bucks+=b; r.push(`💵 +${b}`); }
-        if(Math.random()<0.6) { let sb=randomRange(50,500); game.superBucks+=sb; r.push(`💸 +${sb}`); }
-        if(Math.random()<0.25) { let cnt=randomRange(1,5); game.miners[5]+=cnt; r.push(`⛏ +${cnt} шахтёр 5ур`); }
-        return r;
-    }
-    function starterDrop() {
-        let r=[];
-        if(Math.random()<0.95) { let g=randomRange(10000,70000); game.gold+=g; r.push(`💰 +${g}`); }
-        if(Math.random()<0.9) { let d=randomRange(50000,500000); game.diamonds+=d; r.push(`💎 +${d}`); }
-        if(Math.random()<0.8) { let b=randomRange(200,1000); game.bucks+=b; r.push(`💵 +${b}`); }
-        if(Math.random()<0.7) { let sb=randomRange(100,500); game.superBucks+=sb; r.push(`💸 +${sb}`); }
-        game.miners[6] += 1; r.push(`⛏ +1 шахтёр 6ур`);
-        if(Math.random()<0.7) { let c=randomRange(1,3); game.miners[5]+=c; r.push(`⛏ +${c} шахтёр 5ур`); }
-        if(Math.random()<0.8) { let c=randomRange(1,5); game.miners[4]+=c; r.push(`⛏ +${c} шахтёр 4ур`); }
-        if(Math.random()<0.85) { let c=randomRange(1,5); game.miners[3]+=c; r.push(`⛏ +${c} шахтёр 3ур`); }
-        return r;
-    }
-    function oilChestDrop() {
-        let r=[];
-        let oilAmount = Math.random() < 0.3 ? randomRange(80,300) : randomRange(1,79);
-        game.oil += oilAmount; r.push(`🛢️ +${oilAmount} нефти`);
-        if(Math.random()<0.7) { let g=randomRange(500,10000); game.gold+=g; r.push(`💰 +${g}`); }
-        if(Math.random()<0.5) { let b=randomRange(50,1000); game.bucks+=b; r.push(`💵 +${b}`); }
-        return r;
-    }
-
-    function openBox(boxId) {
-        let box = boxes[boxId];
-        if(!box) return;
-        let price = box.price;
-        if(box.currency === "superBucks" && game.superBucks < price) { showToast(`Нужно ${price} 💸 Супер-Баксов`); return false; }
-        if(box.currency === "superBucks") game.superBucks -= price;
-        let rewards = box.drops();
+        let profitable = isProfitable(priceSuper, 0);
+        let goldAmt = profitable ? 30000 : randomRange(500, 3000);
+        let diamondsAmt = profitable ? 150000 : randomRange(1000, 15000);
+        let superAmt = profitable ? 200 : randomRange(5, 30);
+        game.gold += goldAmt;
+        game.diamonds += diamondsAmt;
+        game.superBucks += superAmt;
+        if(profitable) rewards.push(`🔥 ОКУПИЛОСЬ!`);
+        rewards.push(`💰 +${goldAmt}`, `💎 +${diamondsAmt}`, `💸 +${superAmt}`);
         game.totalBoxesOpened++;
         updateTasks('openBox', 1);
-        updateUI();
-        renderMiners();
-        saveGame();
-        showModalRewards(box.name, rewards);
+        showModalRewards("📦 Бронзовый клад", rewards);
+        updateUI(); renderMiners(); saveGame();
+        return true;
+    }
+    function openBoxSilver() {
+        let priceSuper = 149;
+        if(game.superBucks < priceSuper) { showToast(`Нужно ${priceSuper} 💸`); return false; }
+        game.superBucks -= priceSuper;
+        let profitable = isProfitable(priceSuper, 0);
+        let goldAmt = profitable ? 60000 : randomRange(2000, 8000);
+        let diamondsAmt = profitable ? 400000 : randomRange(5000, 40000);
+        let superAmt = profitable ? 400 : randomRange(10, 60);
+        game.gold += goldAmt;
+        game.diamonds += diamondsAmt;
+        game.superBucks += superAmt;
+        if(profitable) rewards.push(`🔥 ОКУПИЛОСЬ!`);
+        rewards.push(`💰 +${goldAmt}`, `💎 +${diamondsAmt}`, `💸 +${superAmt}`);
+        game.totalBoxesOpened++;
+        updateTasks('openBox', 1);
+        showModalRewards("📦 Серебряный клад", rewards);
+        updateUI(); renderMiners(); saveGame();
+        return true;
+    }
+    function openBoxGolden() {
+        let priceSuper = 229;
+        if(game.superBucks < priceSuper) { showToast(`Нужно ${priceSuper} 💸`); return false; }
+        game.superBucks -= priceSuper;
+        let profitable = isProfitable(priceSuper, 0);
+        let goldAmt = profitable ? 120000 : randomRange(5000, 15000);
+        let diamondsAmt = profitable ? 1000000 : randomRange(20000, 120000);
+        let superAmt = profitable ? 900 : randomRange(20, 150);
+        game.gold += goldAmt;
+        game.diamonds += diamondsAmt;
+        game.superBucks += superAmt;
+        if(profitable) rewards.push(`🔥 ОКУПИЛОСЬ!`);
+        rewards.push(`💰 +${goldAmt}`, `💎 +${diamondsAmt}`, `💸 +${superAmt}`);
+        game.totalBoxesOpened++;
+        updateTasks('openBox', 1);
+        showModalRewards("📦 Золотой клад", rewards);
+        updateUI(); renderMiners(); saveGame();
+        return true;
+    }
+    function openStarterPack() {
+        let priceBucks = 99;
+        if(game.bucks < priceBucks) { showToast(`Нужно ${priceBucks} 💵 (донатная валюта)`); return false; }
+        game.bucks -= priceBucks;
+        let rewards = [];
+        let goldAmt = randomRange(30000, 70000);
+        let diamondsAmt = randomRange(200000, 500000);
+        let superAmt = randomRange(100, 500);
+        game.gold += goldAmt;
+        game.diamonds += diamondsAmt;
+        game.superBucks += superAmt;
+        game.miners[6] += 1;
+        if(Math.random()<0.7) game.miners[5] += randomRange(1,3);
+        if(Math.random()<0.8) game.miners[4] += randomRange(1,5);
+        if(Math.random()<0.85) game.miners[3] += randomRange(1,5);
+        rewards.push(`💰 +${goldAmt}`, `💎 +${diamondsAmt}`, `💸 +${superAmt}`, `⛏ +1 шахтёр 6ур, + шахтёры 3-5ур`);
+        game.totalBoxesOpened++;
+        showModalRewards("🔥 StarterPack", rewards);
+        updateUI(); renderMiners(); saveGame();
+        return true;
+    }
+    function openOilChest() {
+        let priceBucks = 149;
+        if(game.bucks < priceBucks) { 
+            showToast(`❌ Нефтяной кейс покупается за 💵 (донат). Пополните баланс или введите промокод.`); 
+            let modal = document.createElement("div");
+            modal.className = "modal";
+            modal.innerHTML = `<div class="modal-content"><h3>🛢 Нефтяной клад</h3><p>Купить за 149 💵 можно в Telegram: <br><a href="https://t.me/miners_empire_shop" target="_blank">@miners_empire_shop</a></p><button id="closeModal">Закрыть</button></div>`;
+            document.body.appendChild(modal);
+            modal.querySelector("#closeModal").onclick = () => modal.remove();
+            return false;
+        }
+        game.bucks -= priceBucks;
+        let oilAmt = randomRange(50, 300);
+        game.oil += oilAmt;
+        showModalRewards("🛢 Нефтяной клад", [`🛢️ +${oilAmt} нефти`]);
+        game.totalBoxesOpened++;
+        updateUI(); saveGame();
         return true;
     }
 
-    function showModalRewards(title, rewards) {
+    function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
+    function showModalRewards(title, items) {
         let modal = document.createElement("div");
         modal.className = "modal";
-        modal.innerHTML = `<div class="modal-content"><h3>${title}</h3><div>${rewards.join("<br>") || "😞 Ничего не выпало"}</div><button id="closeModalBtn" style="margin-top:12px;">Закрыть</button></div>`;
+        modal.innerHTML = `<div class="modal-content"><h3>${title}</h3><div>${items.join("<br>")}</div><button id="closeModal">Закрыть</button></div>`;
         document.body.appendChild(modal);
-        modal.querySelector("#closeModalBtn").onclick = () => modal.remove();
+        modal.querySelector("#closeModal").onclick = () => modal.remove();
     }
 
-    // задания
     function updateTasks(type, amount) {
         tasksList.forEach(t => {
             if(t.type === type) {
                 t.current += amount;
-                if(t.current >= t.need) {
-                    // выдача награды
+                while(t.current >= t.need) {
                     game.gold += t.rewardGold;
                     if(t.rewardOil) game.oil += t.rewardOil;
                     if(t.rewardSuper) game.superBucks += t.rewardSuper;
-                    showToast(`✅ Задание "${t.name}" выполнено! +${t.rewardGold}💰 +${t.rewardOil>0?t.rewardOil+"🛢️":""} +${t.rewardSuper?t.rewardSuper+"💸":""}`);
+                    showToast(`✅ ${t.name} выполнен! +${t.rewardGold}💰 ${t.rewardOil?t.rewardOil+"🛢️":""}`);
                     t.current = 0;
                     t.need = Math.floor(t.need * 1.3);
                     if(t.need < 2) t.need = 2;
@@ -669,94 +579,148 @@
         updateUI();
     }
 
-    // ========== VIP, ежедневный бонус, вип клад ==========
+    // ========== VIP, ЕЖЕДНЕВНЫЙ, ПРЕСТИЖ ==========
     function checkVIP() {
         if(game.vipActive && Date.now() > game.vipExpireTime) {
             game.vipActive = false;
-            showToast("VIP статус закончился");
+            showToast("VIP закончился");
             saveGame();
         }
         updateVIPdisplay();
     }
-
     function dailyBonus() {
         let now = Date.now();
-        let last = game.lastDailyBonus;
-        if(last && (now - last) < 24*3600*1000) { showToast("Бонус уже получен сегодня!"); return; }
-        // выпадение: шахтёр 1-3 ур. / золото / алмазы в зависимости от дохода
-        let r = Math.random();
+        if(game.lastDailyBonus && (now - game.lastDailyBonus) < 24*3600*1000) { showToast("Бонус только раз в 24 часа"); return; }
         let prodHour = getTotalProdPerSec() * 3600;
         if(prodHour < 1) prodHour = 500;
-        if(r < 0.33) { // шахтёр случайный уровень 1-3
-            let lvl = Math.floor(Math.random()*3)+1;
-            game.miners[lvl] += 1;
-            showToast(`🎁 Ежедневный бонус: +1 шахтёр ${lvl} уровня!`);
-        } else if(r < 0.66) { // золото
-            let goldAmt = Math.floor(prodHour * 0.2);
-            if(goldAmt < 100) goldAmt = 500;
-            game.gold += goldAmt;
-            showToast(`🎁 Ежедневный бонус: +${goldAmt}💰 золота!`);
-        } else { // алмазы
-            let diaAmt = Math.floor(prodHour * 1.5);
-            if(diaAmt < 200) diaAmt = 1000;
-            game.diamonds += diaAmt;
-            showToast(`🎁 Ежедневный бонус: +${diaAmt}💎 алмазов!`);
-        }
-        game.lastDailyBonus = now;
-        updateUI();
-        saveGame();
-    }
-
-    function vipChest() {
-        if(!game.vipActive) { showToast("VIP статус не активен!"); return; }
-        let now = Date.now();
-        if(game.lastVipChest && (now - game.lastVipChest) < 24*3600*1000) { showToast("VIP клад можно брать раз в день"); return; }
-        // дроп: нефть / золото / алмазы / шахтёр 3-5
         let r = Math.random();
-        if(r < 0.25) { game.oil += 1; showToast("VIP клад: +1 🛢️ Нефть!"); }
-        else if(r < 0.5) { let g = randomRange(5000,20000); game.gold += g; showToast(`VIP клад: +${g}💰 Золото`); }
-        else if(r < 0.75) { let d = randomRange(10000,100000); game.diamonds += d; showToast(`VIP клад: +${d}💎 Алмазы`); }
-        else { let lvl = randomRange(3,5); game.miners[lvl] += 1; showToast(`VIP клад: +1 шахтёр ${lvl} уровня!`); }
+        if(r < 0.33) { let lvl = randomRange(1,3); game.miners[lvl]++; showToast(`🎁 Ежедневный бонус: +1 шахтёр ${lvl} ур.`); }
+        else if(r < 0.66) { let goldAmt = Math.floor(prodHour * 0.2); if(goldAmt<100) goldAmt=500; game.gold += goldAmt; showToast(`🎁 +${goldAmt}💰`); }
+        else { let diaAmt = Math.floor(prodHour * 1.5); if(diaAmt<200) diaAmt=1000; game.diamonds += diaAmt; showToast(`🎁 +${diaAmt}💎`); }
+        game.lastDailyBonus = now;
+        updateUI(); renderMiners(); saveGame();
+    }
+    function vipChest() {
+        if(!game.vipActive) { showToast("Нужен VIP статус"); return; }
+        let now = Date.now();
+        if(game.lastVipChest && (now - game.lastVipChest) < 24*3600*1000) { showToast("VIP клад раз в день"); return; }
+        let r = Math.random();
+        if(r<0.25) { game.oil += 1; showToast("VIP клад: +1 🛢️"); }
+        else if(r<0.5) { let g = randomRange(5000,20000); game.gold += g; showToast(`VIP клад: +${g}💰`); }
+        else if(r<0.75) { let d = randomRange(10000,100000); game.diamonds += d; showToast(`VIP клад: +${d}💎`); }
+        else { let lvl = randomRange(3,5); game.miners[lvl]++; showToast(`VIP клад: +1 шахтёр ${lvl} ур.`); }
         game.lastVipChest = now;
         updateUI(); renderMiners(); saveGame();
     }
-
-    // ежедневный бонус увеличен в 2 раза (для VIP) — реализовано в самой функции
-    // но по условию "в 2 раза" уже применено в dailyBonus? добавим множитель
-    // фактически dailyBonus уже даёт нормально, но сделаем для VIP двойной бонус
-    // перепишем dailyBonus с учётом VIP
-    // заменим функцию dailyBonus на улучшенную
+    function prestigeReset() {
+        if(game.bucks < 50) { showToast("Нужно 50 💵 донатных баксов для престижа"); return; }
+        game.bucks -= 50;
+        game.prestigeMult += 0.5;  // увеличиваем множитель дохода на 0.5
+        // Обнуляем прогресс, но сохраняем нефть, баксы, множитель, рефералов
+        game.diamonds = 0;
+        game.gold = 10000;
+        game.superBucks = 0;
+        game.miners = [0,0,0,0,0,0,0,0];
+        game.pendingDiamonds = 0;
+        game.totalMinedEver = 0;
+        game.totalGoldSpent = 0;
+        game.totalBoxesOpened = 0;
+        game.totalOilFromIsland = 0;
+        game.islandUnlocked = false;
+        game.lastExpedition = 0;
+        game.lastDailyBonus = 0;
+        game.lastVipChest = 0;
+        game.vipActive = false;
+        game.vipExpireTime = 0;
+        // Сбрасываем задания?
+        tasksList.forEach(t => { t.current = 0; t.need = Math.floor(t.need); });
+        showToast(`✨ ПРЕСТИЖ! Множитель дохода теперь x${game.prestigeMult.toFixed(2)}`);
+        updateUI(); renderMiners(); renderIsland(); saveGame();
+    }
+    function fullReset() {
+        if(confirm("Полный сброс всего прогресса, включая донат? Необратимо!")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
 
     // ========== ОСТРОВ ==========
     function buyIsland() {
-        if(game.islandUnlocked) { showToast("Уже куплен"); return; }
-        if(game.oil >= 100) {
-            game.oil -= 100;
-            game.islandUnlocked = true;
-            updateUI(); renderIsland(); saveGame();
-            showToast("🌴 Остров открыт!");
-        } else showToast(`Нужно 100 нефти`);
+        if(game.islandUnlocked) return showToast("Уже куплен");
+        if(game.oil >= 100) { game.oil -= 100; game.islandUnlocked = true; updateUI(); renderIsland(); saveGame(); showToast("Остров открыт"); }
+        else showToast(`Нужно 100 нефти`);
     }
     function startExpedition() {
-        if(!game.islandUnlocked) { showToast("Купите остров"); return; }
+        if(!game.islandUnlocked) return showToast("Купите остров");
         let now = Date.now();
         let cd = 12*3600*1000;
         if(game.lastExpedition && (now - game.lastExpedition) < cd) {
             let left = cd - (now - game.lastExpedition);
-            let h = Math.floor(left/3600000);
-            let m = Math.floor((left%3600000)/60000);
-            showToast(`Экспедиция через ${h}ч ${m}мин`);
+            showToast(`Экспедиция через ${Math.floor(left/3600000)}ч ${Math.floor((left%3600000)/60000)}мин`);
             return;
         }
         let prod = getTotalProdPerSec() * 3600;
-        let r = Math.random();
-        if(r < 0.4) { game.oil += 1; game.totalOilFromIsland += 1; showToast(`🛢️ Экспедиция: +1 нефть`); }
-        else { let dia = Math.floor(prod * (0.5+Math.random()*1.5)); if(dia<50) dia=100; game.diamonds += dia; game.totalMinedEver += dia; showToast(`💎 Экспедиция: +${dia} алмазов`); }
+        if(Math.random()<0.4) { game.oil += 1; game.totalOilFromIsland += 1; showToast(`🛢️ +1 нефть`); }
+        else { let dia = Math.floor(prod * (0.5+Math.random()*1.5)); if(dia<50) dia=100; game.diamonds += dia; game.totalMinedEver += dia; showToast(`💎 +${dia} алмазов`); }
         game.lastExpedition = now;
         updateUI(); renderIsland(); saveGame();
     }
 
-    // ========== ОТРИСОВКА ИНТЕРФЕЙСА ==========
+    // ========== РЕФЕРАЛЫ ==========
+    function generateReferralCode() {
+        return "REF" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+    function initReferral() {
+        if(!game.referralCode) {
+            game.referralCode = generateReferralCode();
+        }
+        let url = window.location.href.split('?')[0] + `?ref=${game.referralCode}`;
+        document.getElementById("refLink").innerText = url;
+        document.getElementById("refCount").innerText = game.referrals ? game.referrals.length : 0;
+        document.getElementById("refEarnings").innerText = game.refEarningsBucks.toFixed(2);
+        // обработка приглашения
+        let params = new URLSearchParams(window.location.search);
+        let refCode = params.get('ref');
+        if(refCode && !game.referredBy && refCode !== game.referralCode) {
+            game.referredBy = refCode;
+            // дать бонус приглашённому
+            game.gold += 5000;
+            showToast("🎉 Вы получили +5000 золота за регистрацию по реферальной ссылке!");
+            // уведомить пригласившего через localStorage (имитация сервера)
+            let inviteBonus = { from: game.referralCode, to: refCode, amount: 5000 };
+            localStorage.setItem("refBonus_" + refCode, JSON.stringify(inviteBonus));
+            saveGame();
+        }
+        // проверить, есть ли бонус для текущего игрока как пригласившего
+        let bonusData = localStorage.getItem("refBonus_" + game.referralCode);
+        if(bonusData && !game.referrals.includes(JSON.parse(bonusData).to)) {
+            let data = JSON.parse(bonusData);
+            game.referrals.push(data.to);
+            game.gold += 5000;
+            showToast("👥 Ваш реферал получил +5000 золота! Вам начислено +5000 золота.");
+            localStorage.removeItem("refBonus_" + game.referralCode);
+            saveGame();
+        }
+        updateUI();
+    }
+    function copyRefLink() {
+        let link = document.getElementById("refLink").innerText;
+        navigator.clipboard.writeText(link);
+        showToast("Ссылка скопирована!");
+    }
+    function donateFromReferral(amountBucks) {
+        // вызывается при донате реферала
+        if(game.referredBy) {
+            let refBonus = amountBucks * 0.05;
+            // в реальной игре нужно отправить на сервер, здесь симуляция
+            showToast(`Ваш реферал задонатил ${amountBucks}💵, вы получили ${refBonus.toFixed(2)}💵`);
+            game.refEarningsBucks += refBonus;
+            game.bucks += refBonus;
+            saveGame();
+        }
+    }
+
+    // ========== ОТРИСОВКА ==========
     function renderMiners() {
         let container = document.getElementById("minersList");
         if(!container) return;
@@ -764,36 +728,25 @@
         for(let i=1;i<=7;i++) {
             let m = minersData[i];
             let count = game.miners[i];
-            let prodTotal = (count * m.prodSec * (game.vipActive ? 2 : 1)).toFixed(4);
+            let prodTotal = (count * m.prodSec * game.prestigeMult * (game.vipActive?2:1)).toFixed(4);
             let card = document.createElement("div");
             card.className = "miner-card";
-            card.innerHTML = `
-                <div class="miner-info">
-                    <div class="miner-name">${m.name} x${count}</div>
-                    <div class="miner-stats">${m.diamondsPerHour}💎/час (${prodTotal}💎/сек)</div>
-                </div>
-                <button class="btn-buy" data-level="${i}">${m.costGold}💰</button>
-            `;
+            card.innerHTML = `<div><b>${m.name}</b> x${count}<br><small>${m.diamondsPerHour}💎/час (${prodTotal}💎/сек)</small></div><button class="btn-buy" data-level="${i}">${m.costGold}💰</button>`;
             container.appendChild(card);
         }
-        document.querySelectorAll(".btn-buy[data-level]").forEach(btn => {
-            btn.addEventListener("click", (e) => buyMiner(parseInt(btn.dataset.level)));
-        });
+        document.querySelectorAll(".btn-buy[data-level]").forEach(btn => btn.addEventListener("click", (e) => buyMiner(parseInt(btn.dataset.level))));
     }
-
     function renderShop() {
         let container = document.getElementById("boxesContainer");
         if(!container) return;
-        container.innerHTML = "";
-        for(let [id, box] of Object.entries(boxes)) {
-            let div = document.createElement("div");
-            div.className = "box-card";
-            div.innerHTML = `<div class="box-name">${box.name}</div><div class="box-price">💸 ${box.price}</div><div style="font-size:0.7rem;">${box.desc}</div>`;
-            div.onclick = () => openBox(id);
-            container.appendChild(div);
-        }
+        container.innerHTML = `
+            <div class="box-card" onclick="openBoxBronze()"><b>📦 Бронзовый</b><br>119💸<br><small>5% окупаемость</small></div>
+            <div class="box-card" onclick="openBoxSilver()"><b>📦 Серебряный</b><br>149💸</div>
+            <div class="box-card" onclick="openBoxGolden()"><b>📦 Золотой</b><br>229💸</div>
+            <div class="box-card" onclick="openStarterPack()"><b>🔥 StarterPack</b><br>99💵</div>
+            <div class="box-card" onclick="openOilChest()"><b>🛢 Нефтяной клад</b><br>149💵<br><small>Telegram</small></div>
+        `;
     }
-
     function renderTasks() {
         let container = document.getElementById("tasksContainer");
         if(!container) return;
@@ -802,22 +755,17 @@
             let perc = (t.current / t.need) * 100;
             let div = document.createElement("div");
             div.className = "task-item";
-            div.innerHTML = `
-                <div><b>${t.name}</b><br>${t.desc}: ${Math.floor(t.current)}/${t.need}<div class="task-progress"><div class="task-fill" style="width:${perc}%"></div></div></div>
-                <div>🏆 +${t.rewardGold}💰 ${t.rewardOil>0?`+${t.rewardOil}🛢️`:''} ${t.rewardSuper>0?`+${t.rewardSuper}💸`:''}</div>
-            `;
+            div.innerHTML = `<div><b>${t.name}</b><br>${t.desc}: ${Math.floor(t.current)}/${t.need}<div style="background:#2e4a3a; border-radius:20px; height:6px;"><div style="background:gold; width:${perc}%; height:6px; border-radius:20px;"></div></div></div><div>🏆 +${t.rewardGold}💰 ${t.rewardOil?`+${t.rewardOil}🛢️`:''}</div>`;
             container.appendChild(div);
         });
     }
-
     function renderIsland() {
         let statusDiv = document.getElementById("islandStatus");
         let buyBtn = document.getElementById("buyIslandBtn");
         let expBtn = document.getElementById("expeditionBtn");
-        if(!statusDiv) return;
         if(game.islandUnlocked) {
             buyBtn.disabled = true;
-            buyBtn.textContent = "✅ Остров куплен";
+            buyBtn.textContent = "✅ Куплен";
             let now = Date.now();
             let cd = 12*3600*1000;
             let last = game.lastExpedition;
@@ -825,13 +773,10 @@
             expBtn.disabled = !available;
             if(!available && last) {
                 let left = cd - (now - last);
-                let h = Math.floor(left/3600000);
-                let m = Math.floor((left%3600000)/60000);
-                statusDiv.innerHTML = `⏳ До экспедиции: ${h}ч ${m}мин`;
-            } else statusDiv.innerHTML = `✅ Готова к отправке!`;
-        } else { statusDiv.innerHTML = `🔒 Закрыт. Нужно 100 нефти.`; expBtn.disabled = true; }
+                statusDiv.innerHTML = `⏳ ${Math.floor(left/3600000)}ч ${Math.floor((left%3600000)/60000)}мин`;
+            } else statusDiv.innerHTML = `✅ Готова`;
+        } else { statusDiv.innerHTML = `🔒 Нужно 100 нефти`; expBtn.disabled = true; }
     }
-
     function updateUI() {
         document.getElementById("diamondsVal").innerText = Math.floor(game.diamonds);
         document.getElementById("goldVal").innerText = Math.floor(game.gold);
@@ -840,77 +785,64 @@
         document.getElementById("superBucksVal").innerText = Math.floor(game.superBucks);
         document.getElementById("pendingDisplay").innerText = Math.floor(game.pendingDiamonds);
         let maxStore = getMaxStorage();
-        if(game.vipActive) document.getElementById("storageLimit").innerHTML = "Склад: ∞ (VIP)";
-        else document.getElementById("storageLimit").innerHTML = `Склад: ${Math.floor(game.pendingDiamonds)} / ${Math.floor(maxStore)} (3ч)`;
-        document.getElementById("totalMinedStat").innerText = Math.floor(game.totalMinedEver);
-        document.getElementById("totalMinersStat").innerText = game.miners.reduce((a,b)=>a+b,0);
-        document.getElementById("totalBoxesStat").innerText = game.totalBoxesOpened;
+        document.getElementById("storageLimit").innerHTML = game.vipActive ? "Склад: ∞ (VIP)" : `Склад: ${Math.floor(game.pendingDiamonds)} / ${Math.floor(maxStore)} (3ч)`;
+        document.getElementById("prestigeMult").innerText = game.prestigeMult.toFixed(2);
+        document.getElementById("playTime").innerText = Math.floor(game.playTimeSec);
+        document.getElementById("refCount").innerText = game.referrals ? game.referrals.length : 0;
+        document.getElementById("refEarnings").innerText = game.refEarningsBucks.toFixed(2);
+        let remain = game.vipActive ? Math.max(0, (game.vipExpireTime - Date.now())/1000) : 0;
+        document.getElementById("vipTimer").innerText = game.vipActive ? `${Math.floor(remain/3600)}ч` : "не активен";
         updateVIPdisplay();
     }
-
     function updateVIPdisplay() {
         let banner = document.getElementById("vipBanner");
-        if(game.vipActive) {
-            let remain = Math.max(0, Math.floor((game.vipExpireTime - Date.now())/1000));
-            let hours = Math.floor(remain/3600);
-            let mins = Math.floor((remain%3600)/60);
-            banner.innerHTML = `<span>🎖️ VIP АКТИВЕН</span><span>⏳ ${hours}ч ${mins}мин</span>`;
-        } else banner.innerHTML = `<span>🎖️ VIP НЕ АКТИВЕН</span><span>Купите стартовый пакет</span>`;
+        if(game.vipActive) banner.innerHTML = `<span>🎖️ VIP АКТИВЕН</span><span>⏳ ${Math.floor((game.vipExpireTime-Date.now())/1000/3600)}ч</span>`;
+        else banner.innerHTML = `<span>🎖️ VIP НЕ АКТИВЕН</span><span>Стартер пак даёт VIP</span>`;
     }
 
-    function startVIPforNew() {
-        if(!game.vipActive && game.totalBoxesOpened === 0 && game.totalMinedEver < 1000) {
+    // Таймер времени в игре
+    let startTime = Date.now();
+    setInterval(() => { game.playTimeSec += 1; updateUI(); saveGame(); }, 1000);
+
+    // Тестовые кнопки
+    document.getElementById("addDiamondsBtn")?.addEventListener("click", () => { game.diamonds += 1000; updateUI(); saveGame(); showToast("+1000💎"); });
+    document.getElementById("addBucksBtn")?.addEventListener("click", () => { game.bucks += 1000; updateUI(); saveGame(); showToast("+1000💵 (донат)"); });
+
+    // Сохранение и загрузка
+    function saveGame() { localStorage.setItem("minerEmpireFinal", JSON.stringify(game)); }
+    function loadGame() {
+        let data = localStorage.getItem("minerEmpireFinal");
+        if(data) { try { Object.assign(game, JSON.parse(data)); } catch(e){} }
+        if(!game.miners || game.miners.length !== 8) game.miners = [0,0,0,0,0,0,0,0];
+        if(!game.prestigeMult) game.prestigeMult = 1.0;
+        if(!game.referralCode) game.referralCode = generateReferralCode();
+        if(!game.referrals) game.referrals = [];
+        if(!game.refEarningsBucks) game.refEarningsBucks = 0;
+        if(!game.playTimeSec) game.playTimeSec = 0;
+        // стартовый VIP на 24ч для новых (если нет випа и нет прогресса)
+        if(!game.vipActive && game.totalMinedEver < 1000 && game.diamonds < 1000) {
             game.vipActive = true;
             game.vipExpireTime = Date.now() + 24*3600*1000;
-            showToast("🎉 Вам выдан VIP на 24 часа как новому игроку!");
-            saveGame();
         }
-    }
-
-    // ========== СОХРАНЕНИЕ ==========
-    function saveGame() {
-        let save = {
-            diamonds:game.diamonds, gold:game.gold, oil:game.oil, bucks:game.bucks, superBucks:game.superBucks,
-            miners:game.miners, pendingDiamonds:game.pendingDiamonds, totalMinedEver:game.totalMinedEver,
-            totalGoldSpent:game.totalGoldSpent, totalBoxesOpened:game.totalBoxesOpened, totalOilFromIsland:game.totalOilFromIsland,
-            vipActive:game.vipActive, vipExpireTime:game.vipExpireTime, lastDailyBonus:game.lastDailyBonus,
-            lastVipChest:game.lastVipChest, islandUnlocked:game.islandUnlocked, lastExpedition:game.lastExpedition,
-            tasksDone:game.tasksDone
-        };
-        localStorage.setItem("mobileMinerSave", JSON.stringify(save));
-    }
-    function loadGame() {
-        let data = localStorage.getItem("mobileMinerSave");
-        if(data) {
-            try { Object.assign(game, JSON.parse(data)); }
-            catch(e){}
-        }
-        if(game.miners.length !== 8) game.miners = [0,0,0,0,0,0,0,0];
-        if(!game.superBucks) game.superBucks = 0;
-        if(!game.bucks) game.bucks = 0;
-        if(!game.vipExpireTime) game.vipExpireTime = 0;
-        startVIPforNew();
         lastUpdate = Date.now();
-        updateUI(); renderMiners(); renderShop(); renderTasks(); renderIsland();
+        updateUI(); renderMiners(); renderShop(); renderTasks(); renderIsland(); initReferral();
     }
 
-    function resetGame() {
-        if(confirm("Сбросить весь прогресс?")) { localStorage.clear(); location.reload(); }
-    }
-
-    // инициализация событий
+    // Обработчики
     document.getElementById("collectBtn")?.addEventListener("click", collectDiamonds);
-    document.getElementById("exchangeGoldBtn")?.addEventListener("click", exchangeDiamondsToGold);
+    document.getElementById("exchangeBtn")?.addEventListener("click", exchangeDiamonds);
+    document.getElementById("exchangeAllBtn")?.addEventListener("click", exchangeAll);
     document.getElementById("buySuperBtn")?.addEventListener("click", buySuperBucks);
     document.getElementById("dailyBonusBtn")?.addEventListener("click", dailyBonus);
     document.getElementById("vipChestBtn")?.addEventListener("click", vipChest);
+    document.getElementById("prestigeResetBtn")?.addEventListener("click", prestigeReset);
+    document.getElementById("fullResetBtn")?.addEventListener("click", fullReset);
+    document.getElementById("copyRefBtn")?.addEventListener("click", copyRefLink);
     document.getElementById("buyIslandBtn")?.addEventListener("click", buyIsland);
     document.getElementById("expeditionBtn")?.addEventListener("click", startExpedition);
-    document.getElementById("resetBtn")?.addEventListener("click", resetGame);
 
     setInterval(() => { updatePending(); checkVIP(); saveGame(); }, 1000);
-    setInterval(() => saveGame(), 10000);
-
+    setInterval(() => saveGame(), 5000);
     document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
@@ -921,8 +853,13 @@
             if(btn.dataset.panel === "island") renderIsland();
         });
     });
-
     loadGame();
+    // Глобально привязываем функции для onclick в HTML
+    window.openBoxBronze = openBoxBronze;
+    window.openBoxSilver = openBoxSilver;
+    window.openBoxGolden = openBoxGolden;
+    window.openStarterPack = openStarterPack;
+    window.openOilChest = openOilChest;
 </script>
 </body>
 </html>
