@@ -347,6 +347,15 @@
             .item-buttons { justify-content: flex-end; }
             .rate-item { font-size: 0.7rem; padding: 3px 8px; }
         }
+        .drop-list {
+            font-size: 0.7rem;
+            margin: 5px 0;
+            padding-left: 12px;
+        }
+        .drop-list li {
+            list-style: none;
+            margin: 2px 0;
+        }
     </style>
 </head>
 <body>
@@ -542,7 +551,7 @@
             { name:"🎁 Коллекционер", need:3, current:0, rewardOil:0, rewardGold:250, type:"openBox" },
             { name:"🎁 Архивариус", need:20, current:0, rewardOil:1, rewardGold:0, type:"openBox" }
         ],
-        premiumTasks: []  // { desc, link, rewardCurrency, rewardAmount, creatorCode, completedBy: [] }
+        premiumTasks: []
     };
 
     // ========== ТОП 100 ==========
@@ -677,50 +686,90 @@
         showToast(`+${possible} 💸`);
     }
 
-    // ========== БОКСЫ С 5% ОКУПАЕМОСТЬЮ И ВЕРТИКАЛЬНЫМ ОПИСАНИЕМ ==========
+    // ========== БОКСЫ С 5% ОКУПАЕМОСТЬЮ ==========
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
-    function isProfitable() { return Math.random() < 0.05; } // 5% шанс окупаемости
+    function isProfitable() { return Math.random() < 0.05; } // 5% окупаемости
 
-    function getBoxDrop(boxType) {
-        let profitable = isProfitable();
-        if(profitable) {
-            // окупаемость: даём максимальные значения
-            let resource = randomRange(1500, 1900);
-            let r = randomRange(1,3);
-            if(r===1) return { gold: resource };
-            if(r===2) return { diamonds: resource };
-            return { superBucks: resource };
+    // Бронзовый клад
+    function bronzeDrop() {
+        if(isProfitable()) {
+            // окупился: максимальные значения
+            let gold = randomRange(800, 1000);
+            let diamonds = randomRange(8000, 10000);
+            let bucks = randomRange(30, 40);
+            let miners = randomRange(1,2);
+            let superBucks = randomRange(120, 150);
+            return { gold, diamonds, bucks, miners: { level:1, count: miners }, superBucks };
         } else {
-            // не окупилось: маленькие значения 1-200
-            let resource = randomRange(1, 200);
-            let r = randomRange(1,4);
-            if(r===1) return { gold: resource };
-            if(r===2) return { diamonds: resource };
-            if(r===3) return { superBucks: resource };
-            // шахтёр 1-2 уровня (редко, но в неокупе тоже может быть)
-            let level = randomRange(1,2);
-            return { minerLevel: level, count: 1 };
+            // не окупился: минимальные значения (1-10% от максимума)
+            let gold = randomRange(1, 50);
+            let diamonds = randomRange(1, 200);
+            let bucks = randomRange(0, 2);
+            let superBucks = randomRange(1, 10);
+            let minerChance = Math.random() < 0.1; // 10% шанс на шахтёра при неокупе
+            let miners = minerChance ? { level:1, count:1 } : null;
+            return { gold, diamonds, bucks, superBucks, miners };
+        }
+    }
+    // Серебряный клад
+    function silverDrop() {
+        if(isProfitable()) {
+            let gold = randomRange(2000, 3000);
+            let diamonds = randomRange(20000, 25000);
+            let superBucks1 = randomRange(120, 150);
+            let miners = { level:2, count: randomRange(1,3) };
+            let superBucks2 = randomRange(150, 200);
+            return { gold, diamonds, superBucks: superBucks1 + superBucks2, miners };
+        } else {
+            let gold = randomRange(1, 100);
+            let diamonds = randomRange(1, 500);
+            let superBucks = randomRange(1, 15);
+            let minerChance = Math.random() < 0.08;
+            let miners = minerChance ? { level:2, count:1 } : null;
+            return { gold, diamonds, superBucks, miners };
+        }
+    }
+    // Золотой клад
+    function goldenDrop() {
+        if(isProfitable()) {
+            let gold = randomRange(4000, 5000);
+            let diamonds = randomRange(40000, 50000);
+            let superBucks1 = randomRange(200, 250);
+            let miners = { level:4, count:1 };
+            let superBucks2 = randomRange(400, 500);
+            return { gold, diamonds, superBucks: superBucks1 + superBucks2, miners };
+        } else {
+            let gold = randomRange(1, 200);
+            let diamonds = randomRange(1, 1000);
+            let superBucks = randomRange(1, 30);
+            let minerChance = Math.random() < 0.05;
+            let miners = minerChance ? { level:4, count:1 } : null;
+            return { gold, diamonds, superBucks, miners };
         }
     }
 
     const superBoxes = {
-        bronze: { name:"📦 Бронзовый", price:119, dropDesc:"1) 💎 1-1900\n2) 💰 1-1900\n3) 💸 1-1900\n4) ⛏️ Шахтёр 1-2 лвл", drop:()=>getBoxDrop('bronze') },
-        silver: { name:"📦 Серебряный", price:149, dropDesc:"1) 💎 1-1900\n2) 💰 1-1900\n3) 💸 1-1900\n4) ⛏️ Шахтёр 1-2 лвл", drop:()=>getBoxDrop('silver') },
-        golden: { name:"📦 Золотой", price:229, dropDesc:"1) 💎 1-1900\n2) 💰 1-1900\n3) 💸 1-1900\n4) ⛏️ Шахтёр 1-2 лвл", drop:()=>getBoxDrop('golden') }
+        bronze: { name:"📦 Бронзовый клад", price:119, dropDesc: "✅ Можно найти:\n💰 Золото – до 1000 шт.\n💎 Алмазы – до 10000 шт.\n💵 Баксы – до 40 шт.\n⛏ Шахтёры 1-го уровня – до 2 (1 шт)\n💸 Супер-Баксы – до 150 шт.", drop: bronzeDrop },
+        silver: { name:"📦 Серебряный клад", price:149, dropDesc: "✅ Можно найти:\n💰 Золото – до 3000 шт.\n💎 Алмазы – до 25000 шт.\n💸 Супер-Баксов – до 150 шт.\n⛏ Шахтёры 2-го уровня – до 3 (1 шт.)\n💸 Супер-Баксы – до 200 шт.", drop: silverDrop },
+        golden: { name:"📦 Золотой клад", price:229, dropDesc: "✅ Можно найти:\n💰 Золото – до 5000 шт.\n💎 Алмазы – до 50000 шт.\n💸 Супер-Баксы – до 250 шт.\n⛏ Шахтёры 4-го уровня – до 5 уровня 1 шт\n💸 Супер-Баксы – до 500 шт.", drop: goldenDrop }
     };
 
+    // Премиум боксы (стартерпак и нефтяной)
     function starterDrop() {
-        let profitable = isProfitable();
-        if(profitable) {
-            let resource = randomRange(50000, 100000);
-            let r = randomRange(1,2);
-            if(r===1) return { gold: resource };
-            return { diamonds: resource };
+        if(isProfitable()) {
+            let gold = randomRange(50000, 100000);
+            let diamonds = randomRange(200000, 500000);
+            let superBucks = randomRange(400, 1000);
+            let minersL6 = 1;
+            let minersL5 = randomRange(1,3);
+            let minersL4 = randomRange(1,5);
+            let minersL3 = randomRange(1,5);
+            return { gold, diamonds, superBucks, miners: { l6:minersL6, l5:minersL5, l4:minersL4, l3:minersL3 } };
         } else {
-            let resource = randomRange(1000, 10000);
-            let r = randomRange(1,2);
-            if(r===1) return { gold: resource };
-            return { diamonds: resource };
+            let gold = randomRange(1000, 10000);
+            let diamonds = randomRange(1000, 10000);
+            let superBucks = randomRange(10, 100);
+            return { gold, diamonds, superBucks };
         }
     }
     function oilChestDrop() {
@@ -728,26 +777,24 @@
         return { oil: oilAmount };
     }
     function oilResourceBoxDrop() {
-        let profitable = isProfitable();
-        if(profitable) {
-            let resource = randomRange(15000, 30000);
-            let r = randomRange(1,2);
-            if(r===1) return { gold: resource };
-            return { diamonds: resource };
+        if(isProfitable()) {
+            let gold = randomRange(15000, 30000);
+            let diamonds = randomRange(15000, 30000);
+            let miners = { level: randomRange(5,6), count:1 };
+            return { gold, diamonds, miners };
         } else {
-            let resource = randomRange(500, 5000);
-            let r = randomRange(1,2);
-            if(r===1) return { gold: resource };
-            return { diamonds: resource };
+            let gold = randomRange(500, 5000);
+            let diamonds = randomRange(500, 5000);
+            return { gold, diamonds };
         }
     }
 
     const premiumBoxes = {
-        starter: { name:"🔥 StarterPack", price:99, dropDesc:"💰 1k-100k, 💎 1k-100k, шанс окупаемости 5%", drop:starterDrop },
-        oilChest: { name:"🛢 Нефтяной клад", price:149, dropDesc:"🛢️ 20-300", drop:oilChestDrop }
+        starter: { name:"🔥 StarterPack", price:99, dropDesc:"💰 Золото до 100k, 💎 Алмазы до 500k, 💸 Супер-Баксы до 1000, ⛏ Шахтёры 3-6 ур.", drop:starterDrop },
+        oilChest: { name:"🛢 Нефтяной клад", price:149, dropDesc:"🛢️ Нефть 20-300", drop:oilChestDrop }
     };
     const oilBox = {
-        name:"🛢️ Нефтяной контейнер", price:20, currency:"oil", dropDesc:"💰 500-30k, 💎 500-30k, шанс окупаемости 5%", drop:oilResourceBoxDrop
+        name:"🛢️ Нефтяной контейнер", price:20, currency:"oil", dropDesc:"💰 Золото 500-30k, 💎 Алмазы 500-30k, ⛏ Шахтёр 5-6 ур. (шанс)", drop:oilResourceBoxDrop
     };
 
     function openSuperBox(boxId) {
@@ -786,16 +833,34 @@
         if(drop.gold) game.gold += drop.gold;
         if(drop.diamonds) game.diamonds += drop.diamonds;
         if(drop.superBucks) game.superBucks += drop.superBucks;
+        if(drop.bucks) game.bucks += drop.bucks;
         if(drop.oil) game.oil += drop.oil;
-        if(drop.minerLevel) game.miners[drop.minerLevel] += drop.count;
+        if(drop.miners) {
+            if(drop.miners.level) game.miners[drop.miners.level] += drop.miners.count;
+            else {
+                if(drop.miners.l6) game.miners[6] += drop.miners.l6;
+                if(drop.miners.l5) game.miners[5] += drop.miners.l5;
+                if(drop.miners.l4) game.miners[4] += drop.miners.l4;
+                if(drop.miners.l3) game.miners[3] += drop.miners.l3;
+            }
+        }
     }
     function formatDrop(drop) {
         let lines = [];
         if(drop.gold) lines.push(`💰 +${drop.gold}`);
         if(drop.diamonds) lines.push(`💎 +${drop.diamonds}`);
         if(drop.superBucks) lines.push(`💸 +${drop.superBucks}`);
+        if(drop.bucks) lines.push(`💵 +${drop.bucks}`);
         if(drop.oil) lines.push(`🛢️ +${drop.oil}`);
-        if(drop.minerLevel) lines.push(`⛏ +${drop.count} шахтёр ${drop.minerLevel}ур`);
+        if(drop.miners) {
+            if(drop.miners.level) lines.push(`⛏ +${drop.miners.count} шахтёр ${drop.miners.level}ур`);
+            else {
+                if(drop.miners.l6) lines.push(`⛏ +${drop.miners.l6} шахтёр 6ур`);
+                if(drop.miners.l5) lines.push(`⛏ +${drop.miners.l5} шахтёр 5ур`);
+                if(drop.miners.l4) lines.push(`⛏ +${drop.miners.l4} шахтёр 4ур`);
+                if(drop.miners.l3) lines.push(`⛏ +${drop.miners.l3} шахтёр 3ур`);
+            }
+        }
         return lines;
     }
     function showBoxPreview(box, boxType) {
@@ -832,7 +897,7 @@
         updateUI();
     }
 
-    // Премиум-задания с описанием, ссылкой и выбором валюты
+    // Премиум-задания
     let selectedCurrency = "💎";
     function initCurrencySelect() {
         document.querySelectorAll(".currency-option").forEach(opt => {
@@ -877,10 +942,8 @@
     function completePremiumTask(idx) {
         let task = game.premiumTasks[idx];
         if(task.completedBy.includes(game.referralCode)) { showToast("Вы уже выполняли это задание"); return; }
-        // Открываем ссылку в новой вкладке
         window.open(task.link, '_blank');
         if(confirm(`Вы подписались на группу? Подтвердите получение награды.`)) {
-            // начисляем награду
             let reward = task.rewardAmount;
             switch(task.rewardCurrency) {
                 case "💎": game.diamonds += reward; break;
@@ -890,7 +953,6 @@
                 case "💸": game.superBucks += reward; break;
             }
             task.completedBy.push(game.referralCode);
-            let creatorBonus = reward * 0.1;
             showToast(`+${reward} ${task.rewardCurrency} получено!`);
             saveGame();
             renderPremiumTasks();
@@ -1180,9 +1242,9 @@
         updateUI();
     }
 
-    function saveGame() { localStorage.setItem("minerPurpleFinalV3", JSON.stringify(game)); }
+    function saveGame() { localStorage.setItem("minerPurpleFinalV4", JSON.stringify(game)); }
     function loadGame() {
-        let data = localStorage.getItem("minerPurpleFinalV3");
+        let data = localStorage.getItem("minerPurpleFinalV4");
         if(data) { try { Object.assign(game, JSON.parse(data)); } catch(e){} }
         if(!game.miners || game.miners.length !== 8) game.miners = [0,0,0,0,0,0,0,0];
         if(!game.prestigeMult) game.prestigeMult = 1.0;
