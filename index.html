@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miner's Empire</title>
+    <title>Miner's Empire — Telegram Web App</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             min-height: 100vh;
             background: linear-gradient(145deg, #1e0a2f 0%, #0b0317 100%);
@@ -16,18 +20,20 @@
         .game-container {
             max-width: 550px;
             margin: 0 auto;
-            background: rgba(30,15,50,0.75);
+            background: rgba(30, 15, 50, 0.75);
             backdrop-filter: blur(18px);
             border-radius: 2.2rem;
-            border: 1px solid rgba(170,100,255,0.5);
+            border: 1px solid rgba(170, 100, 255, 0.5);
             overflow: hidden;
+            display: none;
         }
+        /* Стили интерфейса — такие же, как в предыдущей версии */
         .currency-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: rgba(0,0,0,0.4); }
         .currency-card { background: rgba(45,30,65,0.85); border-radius: 60px; padding: 4px 14px; display: flex; align-items: center; gap: 8px; }
         .currency-icon { font-size: 1.2rem; }
         .currency-amount { font-size: 1rem; font-weight: 700; }
         .nav-strip { display: flex; background: #140a20; padding: 6px 12px; gap: 6px; overflow-x: auto; }
-        .nav-btn { background: #2e1a44; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 600; color: #eadaff; cursor: pointer; border-radius: 40px; }
+        .nav-btn { background: #2e1a44; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 600; color: #eadaff; cursor: pointer; border-radius: 40px; white-space: nowrap; }
         .nav-btn.active { background: #9b4dff; color: #0f071a; }
         .panel { display: none; padding: 18px 14px; animation: fade 0.2s; }
         .panel.active-panel { display: block; }
@@ -51,18 +57,53 @@
         .top-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
         .admin-panel { background: #1f1030; border-radius: 1rem; padding: 12px; margin-top: 12px; }
         .footer-note { font-size: 0.6rem; text-align: center; margin-top: 14px; opacity: 0.6; }
-        .guest-badge { background: #5a3e6e; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; display: inline-block; margin-bottom: 10px; }
+        .loading-spinner { text-align: center; padding: 40px; color: #A78BFA; }
     </style>
-    <!-- Firebase SDK (только для режима Telegram, но подключаем всегда) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 </head>
 <body>
+<div class="loading-spinner" id="loadingIndicator">🔄 Загрузка...</div>
 <div class="game-container" id="gameRoot"></div>
 
 <script>
-    // -------------------- FIREBASE CONFIG --------------------
+    // ==================== 1. Проверка Telegram (только реальные пользователи) ====================
+    let tg = null;
+    let telegramUser = null;
+    let isTelegramEnv = false;
+
+    try {
+        if (window.Telegram && window.Telegram.WebApp) {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
+            const initData = tg.initDataUnsafe;
+            if (initData && initData.user && initData.user.id) {
+                isTelegramEnv = true;
+                telegramUser = initData.user;
+                telegramUser.photoUrl = telegramUser.photo_url || "https://via.placeholder.com/32";
+                console.log("✅ Telegram user detected:", telegramUser);
+            } else {
+                throw new Error("No user data in Telegram WebApp");
+            }
+        } else {
+            throw new Error("Not in Telegram WebApp");
+        }
+    } catch (e) {
+        console.warn("Telegram WebApp not available. Game will not load.");
+        document.getElementById('loadingIndicator').innerHTML = '⚠️ Игра доступна только в Telegram через кнопку меню';
+        document.getElementById('loadingIndicator').style.color = '#EF4444';
+        // Не показываем игру, не создаём никаких данных
+        throw e;
+    }
+
+    // Если мы дошли сюда – пользователь реальный и из Telegram
+    const userId = telegramUser.id.toString();
+    const userName = telegramUser.username || `user_${userId}`;
+    const firstName = telegramUser.first_name || "";
+    const photoUrl = telegramUser.photoUrl;
+    const ADMIN_ID = "998579758";
+    let isAdmin = (userId === ADMIN_ID);
+
+    // ==================== 2. Firebase Config ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA8KWTdXPxfwniTrPqvea5zAc_ZMmjr5Yc",
         authDomain: "shaxter-7bdc7.firebaseapp.com",
@@ -76,30 +117,7 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    // -------------------- ОПРЕДЕЛЕНИЕ РЕЖИМА --------------------
-    let isTelegram = false;
-    let tg = null;
-    let telegramUser = null;
-    let guestMode = true;
-
-    try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-            isTelegram = true;
-            tg = window.Telegram.WebApp;
-            tg.expand();
-            tg.ready();
-            telegramUser = tg.initDataUnsafe.user;
-            telegramUser.photoUrl = telegramUser.photo_url || "https://via.placeholder.com/32";
-            guestMode = false;
-            console.log("Telegram режим, пользователь:", telegramUser);
-        } else {
-            console.log("Гостевой режим (браузер) — данные не сохраняются");
-        }
-    } catch(e) {
-        console.log("Гостевой режим, ошибка:", e);
-    }
-
-    // -------------------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ --------------------
+    // ==================== 3. Игровые данные ====================
     let gameData = {
         diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
         miners: [0,0,0,0,0,0,0,0],
@@ -114,7 +132,7 @@
         islandUnlocked: false,
         lastExpedition: 0,
         playSeconds: 0,
-        referralCode: "",
+        referralCode: `REF${userId.slice(-6)}`,
         referrals: [],
         refEarnings: 0,
         storyTasks: [
@@ -128,11 +146,73 @@
         premiumTasks: []
     };
     let dbUser = null;
-    let isAdmin = false;
-    let pendingPremRequests = [];
-    let userId = null;
 
-    // -------------------- ИГРОВАЯ ЛОГИКА (общая для обоих режимов) --------------------
+    // ==================== 4. Загрузка/сохранение в Firebase ====================
+    async function initFirebaseUser() {
+        await auth.signInAnonymously();
+        const userRef = database.ref('users/' + userId);
+        const snapshot = await userRef.once('value');
+        if (!snapshot.exists()) {
+            const newUser = {
+                telegramId: userId, username: userName, firstName, photoUrl, isBlocked: false,
+                diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
+                miners: [0,0,0,0,0,0,0,0], pending: 0, totalMined: 0,
+                prestigeMult: 1.0, prestigeCount: 0, vipActive: false, vipExpire: 0,
+                lastDaily: 0, lastVipChest: 0, islandUnlocked: false, lastExpedition: 0,
+                playSeconds: 0, referralCode: `REF${userId.slice(-6)}`, referrals: [], refEarnings: 0,
+                storyTasks: gameData.storyTasks.map(t => ({ ...t, current: 0 })),
+                premiumTasks: []
+            };
+            await userRef.set(newUser);
+            Object.assign(gameData, newUser);
+        } else {
+            const data = snapshot.val();
+            if (data.isBlocked) {
+                document.getElementById('loadingIndicator').innerHTML = '🚫 Ваш аккаунт заблокирован. Свяжитесь с @nukm0';
+                throw new Error("User blocked");
+            }
+            Object.assign(gameData, data);
+        }
+        // Реальное время
+        userRef.on('value', (snap) => {
+            const val = snap.val();
+            if (val && !val.isBlocked) {
+                Object.assign(gameData, val);
+                updateUIAll();
+            } else if (val && val.isBlocked) {
+                location.reload();
+            }
+        });
+        // Загружаем глобальные задания
+        const tasksSnap = await database.ref('premiumTasks').once('value');
+        if (tasksSnap.exists()) gameData.premiumTasks = Object.values(tasksSnap.val());
+        database.ref('premiumTasks').on('value', (snap) => {
+            gameData.premiumTasks = snap.exists() ? Object.values(snap.val()) : [];
+            renderPremiumTasks();
+        });
+        startGameLoop();
+        renderFullUI();
+        document.getElementById('loadingIndicator').style.display = 'none';
+        document.getElementById('gameRoot').style.display = 'block';
+    }
+
+    function saveUserData() {
+        if (!userId) return;
+        const updates = {
+            diamonds: gameData.diamonds, gold: gameData.gold, oil: gameData.oil,
+            bucks: gameData.bucks, superBucks: gameData.superBucks,
+            miners: gameData.miners, pending: gameData.pending, totalMined: gameData.totalMined,
+            prestigeMult: gameData.prestigeMult, prestigeCount: gameData.prestigeCount,
+            vipActive: gameData.vipActive, vipExpire: gameData.vipExpire,
+            lastDaily: gameData.lastDaily, lastVipChest: gameData.lastVipChest,
+            islandUnlocked: gameData.islandUnlocked, lastExpedition: gameData.lastExpedition,
+            playSeconds: gameData.playSeconds, storyTasks: gameData.storyTasks,
+            refEarnings: gameData.refEarnings
+        };
+        database.ref('users/' + userId).update(updates);
+    }
+
+    // ==================== 5. Игровая логика (сокращённо, ключевые функции) ====================
     const minersData = [
         null,
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec: 100/3600 },
@@ -174,7 +254,6 @@
         lastUpdate = now;
         updateUIAll();
         updateStoryTasks('mine', earn);
-        if(!guestMode) saveUserData();
     }
 
     function collect() {
@@ -183,8 +262,8 @@
         gameData.diamonds += gain;
         gameData.totalMined += gain;
         gameData.pending = 0;
-        updateUIAll(); showToast(`+${gain} 💎`);
-        if(!guestMode) saveUserData();
+        updateUIAll(); showToast(`+${gain} 💎`); saveUserData();
+        updateLeaderboard();
     }
     function buyMiner(lvl) {
         let price = minersData[lvl].costGold;
@@ -192,9 +271,8 @@
             gameData.gold -= price;
             gameData.miners[lvl]++;
             updateStoryTasks('buy', 1);
-            updateUIAll(); renderMiners();
+            updateUIAll(); renderMiners(); saveUserData();
             showToast(`Нанят ${minersData[lvl].name}`);
-            if(!guestMode) saveUserData();
         } else showToast(`Нужно ${price}💰`);
     }
     function exchangeDiamonds() {
@@ -205,8 +283,7 @@
             let goldGain = amount / 100;
             gameData.diamonds -= amount;
             gameData.gold += goldGain;
-            updateUIAll();
-            if(!guestMode) saveUserData();
+            updateUIAll(); saveUserData();
             showToast(`-${amount}💎 +${goldGain}💰`);
         } else showToast("Не хватает");
     }
@@ -216,8 +293,7 @@
         let goldGain = amount / 100;
         gameData.diamonds -= amount;
         gameData.gold += goldGain;
-        updateUIAll();
-        if(!guestMode) saveUserData();
+        updateUIAll(); saveUserData();
         showToast(`-${amount}💎 +${goldGain}💰`);
     }
     function buySuperBucks() {
@@ -228,8 +304,7 @@
         if(gameData.gold >= goldAmt) {
             gameData.gold -= goldAmt;
             gameData.superBucks += sbGain;
-            updateUIAll();
-            if(!guestMode) saveUserData();
+            updateUIAll(); saveUserData();
             showToast(`+${sbGain} 💸`);
         } else showToast("Мало золота");
     }
@@ -238,8 +313,7 @@
         if(possible === 0) return;
         gameData.gold -= possible * 10;
         gameData.superBucks += possible;
-        updateUIAll();
-        if(!guestMode) saveUserData();
+        updateUIAll(); saveUserData();
         showToast(`+${possible} 💸`);
     }
 
@@ -296,9 +370,8 @@
                 if(drop.miners.l3) gameData.miners[3] += drop.miners.l3;
             }
         }
-        updateUIAll(); renderMiners();
+        updateUIAll(); renderMiners(); saveUserData();
         updateStoryTasks('openBox', 1);
-        if(!guestMode) saveUserData();
     }
     function openBox(price, currencyType, dropFunc) {
         if(currencyType === 'super' && gameData.superBucks < price) { showToast(`Нужно ${price} 💸`); return false; }
@@ -333,7 +406,7 @@
     function showModal(title, lines) {
         let modal = document.createElement("div");
         modal.className = "modal";
-        modal.innerHTML = `<div class="modal-window" style="background:#241a37; border-radius:1.8rem; max-width:320px; width:85%; padding:1.2rem; border:1px solid #bb7aff;"><h3>${title}</h3><div>${lines.join("<br>")}</div><button class="close-modal-btn" style="background:#9b4dff; border:none; border-radius:40px; padding:8px 20px; margin-top:12px;">Закрыть</button></div>`;
+        modal.innerHTML = `<div class="modal-window"><h3>${title}</h3><div>${lines.join("<br>")}</div><button class="close-modal-btn" style="background:#9b4dff; border:none; border-radius:40px; padding:8px 20px; margin-top:12px;">Закрыть</button></div>`;
         document.body.appendChild(modal);
         modal.querySelector(".close-modal-btn").onclick = () => modal.remove();
     }
@@ -345,7 +418,6 @@
         setTimeout(()=>t.remove(), 2000);
     }
 
-    // Задания
     function updateStoryTasks(type, amount) {
         gameData.storyTasks.forEach(t => {
             if(t.type === type) {
@@ -357,7 +429,7 @@
                     t.current = 0;
                     t.need = Math.floor(t.need * 1.5);
                     if(t.need < 2) t.need = 2;
-                    if(!guestMode) saveUserData();
+                    saveUserData();
                 }
             }
         });
@@ -365,9 +437,7 @@
         updateUIAll();
     }
 
-    // Премиум задания (только для Telegram-режима)
     async function createPremiumTask() {
-        if(guestMode) { showToast("Доступно только в Telegram"); return; }
         let desc = document.getElementById("taskDesc").value.trim();
         let link = document.getElementById("taskLink").value.trim();
         let amount = parseInt(document.getElementById("taskRewardAmount").value);
@@ -381,20 +451,18 @@
         document.getElementById("taskRewardAmount").value = "10";
     }
     async function completePremiumTask(taskId) {
-        if(guestMode) { showToast("Доступно только в Telegram"); return; }
         const task = gameData.premiumTasks.find(t => t.id === taskId);
         if(!task) return;
-        window.open(task.link, '_blank');
-        const request = { id: Date.now().toString(), userId, username: telegramUser.username || "user", taskId, taskDesc: task.desc, rewardCurrency: task.rewardCurrency, rewardAmount: task.rewardAmount };
+        if (tg && tg.openLink) tg.openLink(task.link);
+        else window.open(task.link, '_blank');
+        const request = { id: Date.now().toString(), userId, username: userName, taskId, taskDesc: task.desc, rewardCurrency: task.rewardCurrency, rewardAmount: task.rewardAmount };
         await database.ref('premiumRequests/' + request.id).set(request);
-        showToast("Заявка отправлена администратору.");
+        showToast("Заявка отправлена администратору. После проверки вы получите награду.");
     }
     async function deleteTask(taskId) {
-        if(guestMode) { showToast("Доступно только администратору"); return; }
         if(confirm("Удалить задание?")) await database.ref('premiumTasks/' + taskId).remove();
     }
 
-    // Престиж
     function getPrestigeCost() {
         let count = gameData.prestigeCount;
         return { bucksCost: Math.floor(50 * Math.pow(1.10, count)), superCost: Math.floor(2000 * Math.pow(1.35, count)) };
@@ -422,14 +490,13 @@
         gameData.oil = savedOil;
         gameData.bucks = savedBucks;
         showToast(`✨ Престиж! Множитель x${gameData.prestigeMult.toFixed(2)}. Выдано 10000💰`);
-        updateUIAll(); renderMiners(); renderStoryTasks();
-        if(!guestMode) saveUserData();
+        updateUIAll(); renderMiners(); renderStoryTasks(); saveUserData();
+        updateLeaderboard();
     }
 
-    // Остров, бонусы
     function buyIsland() {
         if(gameData.islandUnlocked) return showToast("Уже куплен");
-        if(gameData.oil >= 100) { gameData.oil -= 100; gameData.islandUnlocked = true; updateUIAll(); if(!guestMode) saveUserData(); showToast("Остров открыт"); }
+        if(gameData.oil >= 100) { gameData.oil -= 100; gameData.islandUnlocked = true; updateUIAll(); saveUserData(); showToast("Остров открыт"); }
         else showToast("Нужно 100 нефти");
     }
     function startExpedition() {
@@ -445,8 +512,8 @@
         if(Math.random()<0.4) { gameData.oil += 1; showToast(`🛢️ +1 нефть`); }
         else { let dia = Math.floor(prodHour * (0.5+Math.random()*1.5)); if(dia<50) dia=100; gameData.diamonds += dia; gameData.totalMined += dia; showToast(`💎 +${dia} алмазов`); }
         gameData.lastExpedition = now;
-        updateUIAll();
-        if(!guestMode) saveUserData();
+        updateUIAll(); saveUserData();
+        updateLeaderboard();
     }
     function dailyReward() {
         let now = Date.now();
@@ -458,8 +525,7 @@
         else if(r < 0.66) { let gold = Math.floor(prodHour * 0.2); if(gold<200) gold=500; gameData.gold += gold; showToast(`🎁 +${gold}💰`); }
         else { let dia = Math.floor(prodHour * 1.5); if(dia<300) dia=1000; gameData.diamonds += dia; showToast(`🎁 +${dia}💎`); }
         gameData.lastDaily = now;
-        updateUIAll(); renderMiners();
-        if(!guestMode) saveUserData();
+        updateUIAll(); renderMiners(); saveUserData();
     }
     function vipChestDaily() {
         if(!gameData.vipActive) { showToast("Нужен VIP"); return; }
@@ -471,22 +537,19 @@
         else if(r<0.75) { let d = randomRange(10000,100000); gameData.diamonds += d; showToast(`VIP: +${d}💎`); }
         else { let lvl = randomRange(3,5); gameData.miners[lvl]++; showToast(`VIP: +1 шахтёр ${lvl}ур.`); }
         gameData.lastVipChest = now;
-        updateUIAll(); renderMiners();
-        if(!guestMode) saveUserData();
+        updateUIAll(); renderMiners(); saveUserData();
     }
     function buyVIP(days, costBucks) {
-        if(guestMode) { showToast("Доступно только в Telegram"); return; }
         if(gameData.bucks < costBucks) { showToast(`Нужно ${costBucks} 💵`); return; }
         gameData.bucks -= costBucks;
         let expire = Date.now() + days * 24 * 3600 * 1000;
         if(!gameData.vipActive || gameData.vipExpire < expire) gameData.vipExpire = expire;
         gameData.vipActive = true;
         showToast(`🎖️ VIP на ${days} день(дней) активирован!`);
-        updateUIAll();
-        if(!guestMode) saveUserData();
+        updateUIAll(); saveUserData();
     }
 
-    // -------------------- ОТРИСОВКА UI --------------------
+    // ==================== 6. UI отрисовка ====================
     function renderMiners() {
         let cont = document.getElementById("minersList");
         if(!cont) return;
@@ -558,10 +621,6 @@
         let cont = document.getElementById("premiumTasksList");
         if(!cont) return;
         cont.innerHTML = "";
-        if(guestMode) {
-            cont.innerHTML = `<div class="task-card">Премиум-задания доступны только в Telegram</div>`;
-            return;
-        }
         gameData.premiumTasks.forEach(t => {
             let div = document.createElement("div");
             div.className = "task-card";
@@ -572,7 +631,7 @@
         if(isAdmin) document.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => deleteTask(btn.dataset.del)));
     }
     function renderAdminPanel() {
-        if(!isAdmin || guestMode) return;
+        if(!isAdmin) return;
         const profileDiv = document.getElementById("profilePanel");
         let existing = document.getElementById("adminPanel");
         if(existing) existing.remove();
@@ -621,9 +680,11 @@
     async function renderRequests() {
         let container = document.getElementById("adminRequestsList");
         if(!container) return;
-        container.innerHTML = pendingPremRequests.map(req => `<div>${req.username}: ${req.taskDesc} <button data-approve="${req.id}">✅</button></div>`).join('');
+        let snap = await database.ref('premiumRequests').once('value');
+        let requests = snap.exists() ? Object.values(snap.val()) : [];
+        container.innerHTML = requests.map(req => `<div>${req.username}: ${req.taskDesc} <button data-approve="${req.id}">✅</button></div>`).join('');
         document.querySelectorAll("[data-approve]").forEach(btn => btn.addEventListener("click", async () => {
-            let req = pendingPremRequests.find(r=>r.id === btn.dataset.approve);
+            let req = requests.find(r=>r.id === btn.dataset.approve);
             if(req) {
                 let userRef = database.ref('users/' + req.userId);
                 userRef.transaction(user => {
@@ -642,18 +703,15 @@
         }));
     }
     function renderTop() {
-        if(guestMode) {
-            document.getElementById("topList").innerHTML = `<div class="top-item">Топ доступен только в Telegram</div>`;
-            return;
-        }
         database.ref('users').orderByChild('totalMined').limitToLast(100).once('value', snap => {
             let users = [];
             snap.forEach(c => users.push({id:c.key,...c.val()}));
             users.sort((a,b)=>b.totalMined - a.totalMined);
             let container = document.getElementById("topList");
-            if(container) container.innerHTML = users.map((u,i)=>`<div class="top-item"><img class="top-avatar" src="${u.photoUrl||'https://via.placeholder.com/32'}" onerror="this.src='https://via.placeholder.com/32'"><span>${i+1}. ${u.username||u.telegramId}</span><span>${Math.floor(u.totalMined)} 💎</span></div>`).join('');
+            if(container) container.innerHTML = users.map((u,i)=>`<div class="top-item"><img class="top-avatar" src="${u.photoUrl}" onerror="this.src='https://via.placeholder.com/32'"><span>${i+1}. ${u.username}</span><span>${Math.floor(u.totalMined)} 💎</span></div>`).join('');
         });
     }
+    function updateLeaderboard() { renderTop(); }
     function updateUIAll() {
         document.getElementById("diamondsVal").innerText = Math.floor(gameData.diamonds);
         document.getElementById("goldVal").innerText = Math.floor(gameData.gold);
@@ -670,9 +728,6 @@
         document.getElementById("prestigeCostSuper").innerText = superCost;
         let remain = gameData.vipActive ? Math.max(0, (gameData.vipExpire - Date.now())/1000) : 0;
         document.getElementById("vipTimer").innerHTML = gameData.vipActive ? `⏳ ${Math.floor(remain/3600)}ч` : "неактивен";
-        // Бейдж режима
-        let guestBadge = document.getElementById("guestBadge");
-        if(guestBadge) guestBadge.innerText = guestMode ? "⚡ Гостевой режим (данные не сохраняются)" : "✅ Telegram: профиль сохранён";
     }
     function renderIsland() {
         let statusDiv = document.getElementById("islandStatus");
@@ -692,87 +747,11 @@
         } else { statusDiv.innerHTML = "🔒 Нужно 100 нефти"; expBtn.disabled = true; }
     }
     function startGameLoop() {
-        setInterval(() => { gameData.playSeconds++; updateUIAll(); if(!guestMode) saveUserData(); }, 1000);
-        setInterval(() => { updatePending(); if(gameData.vipActive && gameData.vipExpire < Date.now()) gameData.vipActive = false; if(!guestMode) saveUserData(); }, 1000);
-        setInterval(() => { if(!guestMode) saveUserData(); }, 10000);
+        setInterval(() => { gameData.playSeconds++; saveUserData(); updateUIAll(); }, 1000);
+        setInterval(() => { updatePending(); if(gameData.vipActive && gameData.vipExpire < Date.now()) gameData.vipActive = false; saveUserData(); }, 1000);
+        setInterval(() => saveUserData(), 10000);
     }
 
-    // Сохранение в Firebase (только для Telegram)
-    function saveUserData() {
-        if(guestMode || !dbUser) return;
-        const updates = {
-            diamonds: gameData.diamonds, gold: gameData.gold, oil: gameData.oil,
-            bucks: gameData.bucks, superBucks: gameData.superBucks,
-            miners: gameData.miners, pending: gameData.pending, totalMined: gameData.totalMined,
-            prestigeMult: gameData.prestigeMult, prestigeCount: gameData.prestigeCount,
-            vipActive: gameData.vipActive, vipExpire: gameData.vipExpire,
-            lastDaily: gameData.lastDaily, lastVipChest: gameData.lastVipChest,
-            islandUnlocked: gameData.islandUnlocked, lastExpedition: gameData.lastExpedition,
-            playSeconds: gameData.playSeconds, storyTasks: gameData.storyTasks,
-            refEarnings: gameData.refEarnings
-        };
-        database.ref('users/' + userId).update(updates);
-    }
-
-    // -------------------- ИНИЦИАЛИЗАЦИЯ FIREBASE ДЛЯ TELEGRAM --------------------
-    async function initTelegramUser() {
-        if(guestMode) return;
-        await auth.signInAnonymously();
-        userId = telegramUser.id.toString();
-        const userRef = database.ref('users/' + userId);
-        const snapshot = await userRef.once('value');
-        if (!snapshot.exists()) {
-            const newUser = {
-                telegramId: userId, username: telegramUser.username || `user_${userId}`, firstName: telegramUser.first_name || "", photoUrl: telegramUser.photoUrl,
-                isBlocked: false, diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
-                miners: [0,0,0,0,0,0,0,0], pending: 0, totalMined: 0,
-                prestigeMult: 1.0, prestigeCount: 0, vipActive: false, vipExpire: 0,
-                lastDaily: 0, lastVipChest: 0, islandUnlocked: false, lastExpedition: 0,
-                playSeconds: 0, referralCode: `REF${userId.slice(-6)}`, referrals: [], refEarnings: 0,
-                storyTasks: gameData.storyTasks.map(t => ({ ...t, current: 0 })),
-                premiumTasks: []
-            };
-            await userRef.set(newUser);
-            Object.assign(gameData, newUser);
-        } else {
-            const data = snapshot.val();
-            if (data.isBlocked) {
-                alert("Вы заблокированы");
-                guestMode = true;
-                return;
-            }
-            Object.assign(gameData, data);
-        }
-        dbUser = snapshot.val() || gameData;
-        isAdmin = (userId === "998579758");
-        userRef.on('value', (snap) => {
-            const val = snap.val();
-            if (val && !val.isBlocked) {
-                Object.assign(gameData, val);
-                updateUIAll();
-                renderMiners(); renderStoryTasks();
-            } else if (val && val.isBlocked) {
-                alert("Вы заблокированы");
-                guestMode = true;
-            }
-        });
-        const tasksSnap = await database.ref('premiumTasks').once('value');
-        if (tasksSnap.exists()) gameData.premiumTasks = Object.values(tasksSnap.val());
-        database.ref('premiumTasks').on('value', (snap) => {
-            gameData.premiumTasks = snap.exists() ? Object.values(snap.val()) : [];
-            renderPremiumTasks();
-        });
-        if (isAdmin) {
-            database.ref('premiumRequests').on('value', (snap) => {
-                pendingPremRequests = snap.exists() ? Object.values(snap.val()) : [];
-                renderAdminPanel();
-            });
-        }
-        startGameLoop();
-        renderFullUI();
-    }
-
-    // -------------------- ПОЛНАЯ ОТРИСОВКА --------------------
     function renderFullUI() {
         const container = document.getElementById("gameRoot");
         container.innerHTML = `
@@ -783,7 +762,6 @@
                 <div class="currency-card"><span class="currency-icon">💵</span><span class="currency-amount" id="bucksVal">0</span></div>
                 <div class="currency-card"><span class="currency-icon">💸</span><span class="currency-amount" id="superVal">0</span></div>
             </div>
-            <div style="padding: 0 16px 8px 16px;"><div class="guest-badge" id="guestBadge"></div></div>
             <div class="nav-strip">
                 <button class="nav-btn active" data-panel="miners">⛏️ Шахтёры</button>
                 <button class="nav-btn" data-panel="shop">📦 Магазин</button>
@@ -821,7 +799,7 @@
             </div>
             <div id="profilePanel" class="panel">
                 <div style="background:#1f1133; border-radius:1rem; padding:12px; margin-bottom:12px;">
-                    <div>👤 ${guestMode ? "Гость (браузер)" : (telegramUser?.first_name || "") + " @" + (telegramUser?.username || "unknown")}</div>
+                    <div>👤 ${firstName} (@${userName})</div>
                     <div>⏱ Время в игре: <span id="playTimePretty">0 сек</span></div>
                     <div>👥 Рефералов: <span id="refCount">0</span> | 💵 Заработано: <span id="refEarn">0</span></div>
                     <div class="ref-link" id="refLink" style="background:#2d1d42; padding:6px; border-radius:30px; font-size:0.7rem;"></div>
@@ -866,7 +844,7 @@
                     <p><strong>📦 Боксы</strong> — шанс окупаемости 5%.</p>
                 </div>
             </div>`;
-        // Навешиваем обработчики вкладок
+        // Обработчики
         document.querySelectorAll(".nav-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
@@ -875,7 +853,7 @@
                 document.getElementById(btn.dataset.panel+"Panel").classList.add("active-panel");
                 if(btn.dataset.panel === "shop") renderShop();
                 if(btn.dataset.panel === "tasks") { renderStoryTasks(); renderPremiumTasks(); }
-                if(btn.dataset.panel === "profile" && !guestMode) renderAdminPanel();
+                if(btn.dataset.panel === "profile") renderAdminPanel();
                 if(btn.dataset.panel === "top") renderTop();
                 if(btn.dataset.panel === "island") renderIsland();
             });
@@ -892,14 +870,11 @@
         document.getElementById("expeditionBtn").onclick = startExpedition;
         document.getElementById("copyRefBtn").onclick = () => { navigator.clipboard.writeText(window.location.href); showToast("Ссылка скопирована"); };
         document.getElementById("createPremiumTaskBtn").onclick = createPremiumTask;
-        // Выбор валюты для создания задания
         document.querySelectorAll(".currency-option").forEach(opt => {
             opt.onclick = () => { document.querySelectorAll(".currency-option").forEach(o=>o.classList.remove("selected")); opt.classList.add("selected"); };
         });
         document.querySelector(".currency-option").classList.add("selected");
-        // Онлайн счётчик (имитация)
         setInterval(() => { let online = Math.floor(80 + Math.random() * 250); document.getElementById("onlineCount").innerText = online; }, 30000);
-        // Обновление времени в игре
         setInterval(() => {
             let sec = gameData.playSeconds;
             let days = Math.floor(sec/86400), hours = Math.floor((sec%86400)/3600), mins = Math.floor((sec%3600)/60);
@@ -909,25 +884,11 @@
             document.getElementById("refLink").innerText = window.location.href;
         }, 1000);
         updateUIAll(); renderMiners(); renderShop(); renderStoryTasks(); renderPremiumTasks(); renderIsland(); renderTop();
-        if(!guestMode && isAdmin) renderAdminPanel();
+        if(isAdmin) renderAdminPanel();
     }
 
-    // Запуск
-    if(guestMode) {
-        // Гостевой режим: просто показываем игру без сохранений и без Firebase
-        renderFullUI();
-        startGameLoop();
-        setInterval(() => {
-            // В гостевом режиме не сохраняем, просто обновляем UI
-            updateUIAll();
-        }, 100);
-        document.getElementById("guestBadge").innerText = "⚡ Гостевой режим (данные не сохраняются)";
-    } else {
-        // Telegram режим
-        initTelegramUser().then(() => {
-            renderFullUI();
-        });
-    }
+    // ==================== 7. Запуск ====================
+    initFirebaseUser();
 </script>
 </body>
 </html>
