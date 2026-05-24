@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miner's Empire — Фиолетовая легенда</title>
+    <title>Miner's Empire — Престиж и Рефералы</title>
     <style>
         * {
             margin: 0;
@@ -446,7 +446,7 @@
         </div>
     </div>
 
-    <!-- Профиль (без тестовых пополнений) -->
+    <!-- Профиль -->
     <div id="profilePanel" class="panel">
         <div style="background:#1f1133; border-radius:1.2rem; padding:12px; margin-bottom:12px;">
             <div>⏱ Время в игре: <strong id="playTimePretty">0 сек</strong></div>
@@ -460,13 +460,14 @@
             <div>Текущий множитель: x<span id="prestigeMult">1.00</span></div>
             <div>Стоимость: <span id="prestigeCostBucks">50</span> 💵 + <span id="prestigeCostSuper">2000</span> 💸</div>
             <button id="prestigeBtn" class="btn-glow">💫 Улучшить престиж (+0.1x)</button>
-            <div style="font-size:0.7rem; margin-top:6px;">⚠️ Сброс: обнуляет алмазы, золото, шахтёров, склад, задания. Сохраняет нефть, 💵, 💸, множитель.</div>
+            <div style="font-size:0.7rem; margin-top:6px;">⚠️ Престиж сбрасывает всё, кроме 💵 и 🛢️. Выдаёт 10000💰.</div>
         </div>
 
         <div style="background:#1f1133; border-radius:1.2rem; padding:12px; margin-bottom:12px;">
             <h4>🎁 Бонусы</h4>
             <button id="dailyBonusBtn" class="btn-glow" style="width:100%; margin-bottom:6px;">📅 Ежедневный бонус (24ч)</button>
             <button id="vipChestBtn" class="btn-glow" style="width:100%; background:#9b4dff;">🎖️ VIP клад (раз в день)</button>
+            <button id="clearProgressBtn" class="btn-secondary" style="width:100%; margin-top:6px; background:#6d3b6d;">🗑️ Очистить прогресс (начать заново)</button>
         </div>
 
         <div style="background:#1f1133; border-radius:1.2rem; padding:12px;">
@@ -482,7 +483,7 @@
             </div>
             <input type="number" id="taskRewardAmount" placeholder="Сумма награды" value="10" style="width:100%; background:#2d1d42; border:1px solid #b77cff; border-radius:30px; padding:6px; margin:6px 0; color:white;">
             <button id="createPremiumTaskBtn" class="btn-glow" style="width:100%;">🔗 Создать задание</button>
-            <div class="footer-note">После подписки вы получите награду. Создатель задания получает 10% от награды.</div>
+            <div class="footer-note">После нажатия «Выполнить» откроется ссылка, затем подтвердите — получите награду.</div>
         </div>
     </div>
 
@@ -506,7 +507,7 @@
             <p><strong>⛏️ Шахтёры</strong> — производят алмазы каждую секунду. Накопление до 3 часов (или бесконечно с VIP).</p>
             <p><strong>📦 Боксы</strong> — шанс получить ресурсы или шахтёров. Шанс крупной награды (окупаемости) — 5%.</p>
             <p><strong>🌴 Нефтяной остров</strong> — экспедиция раз в 12 часов даёт нефть или алмазы.</p>
-            <p><strong>✨ Престиж</strong> — увеличивает добычу всех шахтёров. Сбрасывает прогресс, но сохраняет нефть и донатные валюты.</p>
+            <p><strong>✨ Престиж</strong> — увеличивает добычу всех шахтёров. Сбрасывает прогресс, но сохраняет нефть и донатные баксы, выдаёт 10000 золота.</p>
             <p><strong>📜 Задания</strong> — сюжетные дают золото/нефть, премиум создаются игроками.</p>
             <p><strong>👥 Рефералы</strong> — приглашайте друзей, получайте 5000 золота и 5% от их донатов.</p>
         </div>
@@ -686,14 +687,12 @@
         showToast(`+${possible} 💸`);
     }
 
-    // ========== БОКСЫ С 5% ОКУПАЕМОСТЬЮ ==========
+    // ========== БОКСЫ (оставлены как в предыдущей версии) ==========
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
-    function isProfitable() { return Math.random() < 0.05; } // 5% окупаемости
+    function isProfitable() { return Math.random() < 0.05; }
 
-    // Бронзовый клад
     function bronzeDrop() {
         if(isProfitable()) {
-            // окупился: максимальные значения
             let gold = randomRange(800, 1000);
             let diamonds = randomRange(8000, 10000);
             let bucks = randomRange(30, 40);
@@ -701,17 +700,15 @@
             let superBucks = randomRange(120, 150);
             return { gold, diamonds, bucks, miners: { level:1, count: miners }, superBucks };
         } else {
-            // не окупился: минимальные значения (1-10% от максимума)
             let gold = randomRange(1, 50);
             let diamonds = randomRange(1, 200);
             let bucks = randomRange(0, 2);
             let superBucks = randomRange(1, 10);
-            let minerChance = Math.random() < 0.1; // 10% шанс на шахтёра при неокупе
+            let minerChance = Math.random() < 0.1;
             let miners = minerChance ? { level:1, count:1 } : null;
             return { gold, diamonds, bucks, superBucks, miners };
         }
     }
-    // Серебряный клад
     function silverDrop() {
         if(isProfitable()) {
             let gold = randomRange(2000, 3000);
@@ -729,7 +726,6 @@
             return { gold, diamonds, superBucks, miners };
         }
     }
-    // Золотой клад
     function goldenDrop() {
         if(isProfitable()) {
             let gold = randomRange(4000, 5000);
@@ -754,7 +750,6 @@
         golden: { name:"📦 Золотой клад", price:229, dropDesc: "✅ Можно найти:\n💰 Золото – до 5000 шт.\n💎 Алмазы – до 50000 шт.\n💸 Супер-Баксы – до 250 шт.\n⛏ Шахтёры 4-го уровня – до 5 уровня 1 шт\n💸 Супер-Баксы – до 500 шт.", drop: goldenDrop }
     };
 
-    // Премиум боксы (стартерпак и нефтяной)
     function starterDrop() {
         if(isProfitable()) {
             let gold = randomRange(50000, 100000);
@@ -897,7 +892,7 @@
         updateUI();
     }
 
-    // Премиум-задания
+    // Премиум-задания (сначала открывается ссылка, затем награда)
     let selectedCurrency = "💎";
     function initCurrencySelect() {
         document.querySelectorAll(".currency-option").forEach(opt => {
@@ -942,7 +937,9 @@
     function completePremiumTask(idx) {
         let task = game.premiumTasks[idx];
         if(task.completedBy.includes(game.referralCode)) { showToast("Вы уже выполняли это задание"); return; }
+        // Открываем ссылку в новой вкладке
         window.open(task.link, '_blank');
+        // После подтверждения выдаём награду
         if(confirm(`Вы подписались на группу? Подтвердите получение награды.`)) {
             let reward = task.rewardAmount;
             switch(task.rewardCurrency) {
@@ -953,6 +950,10 @@
                 case "💸": game.superBucks += reward; break;
             }
             task.completedBy.push(game.referralCode);
+            let creatorBonus = reward * 0.1;
+            if(task.creatorCode && task.creatorCode !== game.referralCode) {
+                showToast(`Создатель задания получит ${creatorBonus}💵 бонусом`);
+            }
             showToast(`+${reward} ${task.rewardCurrency} получено!`);
             saveGame();
             renderPremiumTasks();
@@ -960,7 +961,7 @@
         }
     }
 
-    // ========== ПРЕСТИЖ ==========
+    // ========== ПРЕСТИЖ (сохраняет только 💵 и 🛢️, выдаёт 10000💰) ==========
     function getPrestigeCost() {
         let count = game.prestigeCount;
         let bucksCost = Math.floor(50 * Math.pow(1.10, count));
@@ -977,17 +978,60 @@
         game.superBucks -= superCost;
         game.prestigeMult += 0.1;
         game.prestigeCount++;
+        // Сохраняем нефть и донатные баксы
+        let savedOil = game.oil;
+        let savedBucks = game.bucks;
+        // Полный сброс всего остального
         game.diamonds = 0;
-        game.gold = 10000;
+        game.gold = 10000;      // выдаём 10к золота
         game.miners = [0,0,0,0,0,0,0,0];
         game.pending = 0;
         game.totalMined = 0;
         game.islandUnlocked = false;
         game.lastExpedition = 0;
         game.storyTasks.forEach(t => { t.current = 0; t.need = t.need > 1000 ? 1000 : t.need; });
-        showToast(`✨ Престиж! Множитель x${game.prestigeMult.toFixed(2)}`);
-        updateUI(); renderMiners(); saveGame();
+        // Восстанавливаем сохранённые валюты
+        game.oil = savedOil;
+        game.bucks = savedBucks;
+        showToast(`✨ Престиж! Множитель x${game.prestigeMult.toFixed(2)}. Выдано 10000💰`);
+        updateUI(); renderMiners(); renderShop(); renderStoryTasks(); renderIsland(); saveGame();
         updateLeaderboard();
+    }
+
+    // ========== ОЧИСТКА ПРОГРЕССА (полный сброс, без сохранения) ==========
+    function clearProgress() {
+        if(confirm("Очистить весь прогресс? Вы начнёте игру с нуля (сохранятся только реферальные бонусы).")) {
+            // Полный сброс до начальных значений, но с проверкой на реферальную ссылку
+            let startGold = 10000;
+            let params = new URLSearchParams(window.location.search);
+            let ref = params.get('ref');
+            if(ref && !game.referredBy && ref !== game.referralCode) {
+                startGold = 15000;  // для нового пришедшего по реферальной ссылке
+            }
+            game.diamonds = 0;
+            game.gold = startGold;
+            game.oil = 0;
+            game.bucks = 0;
+            game.superBucks = 0;
+            game.miners = [0,0,0,0,0,0,0,0];
+            game.pending = 0;
+            game.totalMined = 0;
+            game.prestigeMult = 1.0;
+            game.prestigeCount = 0;
+            game.vipActive = false;
+            game.vipExpire = 0;
+            game.lastDaily = 0;
+            game.lastVipChest = 0;
+            game.islandUnlocked = false;
+            game.lastExpedition = 0;
+            game.playSeconds = 0;
+            game.storyTasks.forEach(t => { t.current = 0; t.need = t.need > 1000 ? 1000 : t.need; });
+            game.premiumTasks = [];
+            // Реферальные данные не сбрасываем (код, рефералы, earnings)
+            saveGame();
+            updateUI(); renderMiners(); renderShop(); renderStoryTasks(); renderIsland();
+            showToast("Прогресс очищен! Игра начата заново.");
+        }
     }
 
     // ========== ОСТРОВ ==========
@@ -1225,8 +1269,8 @@
         let ref = params.get('ref');
         if(ref && !game.referredBy && ref !== game.referralCode) {
             game.referredBy = ref;
-            game.gold += 5000;
-            showToast("🎉 +5000💰 за реферальную ссылку");
+            game.gold = 15000;  // стартовые 15к для пришедшего по реферальной ссылке
+            showToast("🎉 +15000💰 за реферальную ссылку!");
             localStorage.setItem("refBonus_"+ref, JSON.stringify({ from: game.referralCode, to: ref }));
             saveGame();
         }
@@ -1242,9 +1286,9 @@
         updateUI();
     }
 
-    function saveGame() { localStorage.setItem("minerPurpleFinalV4", JSON.stringify(game)); }
+    function saveGame() { localStorage.setItem("minerPurpleFinalV5", JSON.stringify(game)); }
     function loadGame() {
-        let data = localStorage.getItem("minerPurpleFinalV4");
+        let data = localStorage.getItem("minerPurpleFinalV5");
         if(data) { try { Object.assign(game, JSON.parse(data)); } catch(e){} }
         if(!game.miners || game.miners.length !== 8) game.miners = [0,0,0,0,0,0,0,0];
         if(!game.prestigeMult) game.prestigeMult = 1.0;
@@ -1263,7 +1307,8 @@
             ];
         }
         if(!game.premiumTasks) game.premiumTasks = [];
-        if(!game.vipActive && game.totalMined < 1000 && game.diamonds < 500) {
+        // Если VIP не активен и нет прогресса, выдаём VIP на 24ч новичкам
+        if(!game.vipActive && game.totalMined < 1000 && game.diamonds < 500 && game.gold < 20000) {
             game.vipActive = true;
             game.vipExpire = Date.now() + 24*3600*1000;
         }
@@ -1284,6 +1329,7 @@
     document.getElementById("expeditionBtn")?.addEventListener("click", startExpedition);
     document.getElementById("copyRefBtn")?.addEventListener("click", () => { let link = document.getElementById("refLink").innerText; navigator.clipboard.writeText(link); showToast("Ссылка скопирована"); });
     document.getElementById("createPremiumTaskBtn")?.addEventListener("click", createPremiumTask);
+    document.getElementById("clearProgressBtn")?.addEventListener("click", clearProgress);
 
     setInterval(() => { game.playSeconds++; updateUI(); saveGame(); }, 1000);
     setInterval(() => { updatePending(); if(game.vipActive && game.vipExpire < Date.now()) game.vipActive = false; saveGame(); }, 1000);
