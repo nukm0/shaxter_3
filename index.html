@@ -13,7 +13,7 @@
         body {
             min-height: 100vh;
             background: linear-gradient(145deg, #1e0a2f 0%, #0b0317 100%);
-            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             padding: 12px;
             color: #f2eaff;
         }
@@ -24,213 +24,92 @@
             backdrop-filter: blur(18px);
             border-radius: 2.2rem;
             border: 1px solid rgba(170, 100, 255, 0.5);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             overflow: hidden;
+            display: none;
         }
-        .currency-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.4);
-            border-bottom: 1px solid #aa55ff80;
+        .access-denied {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            max-width: 500px;
+            margin: 0 auto;
         }
-        .currency-card {
-            background: rgba(45,30,65,0.85);
-            border-radius: 60px;
-            padding: 4px 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .currency-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: rgba(0,0,0,0.4); }
+        .currency-card { background: rgba(45,30,65,0.85); border-radius: 60px; padding: 4px 14px; display: flex; align-items: center; gap: 8px; }
         .currency-icon { font-size: 1.2rem; }
         .currency-amount { font-size: 1rem; font-weight: 700; }
-        .nav-strip {
-            display: flex;
-            background: #140a20;
-            padding: 6px 12px;
-            gap: 6px;
-            overflow-x: auto;
-        }
-        .nav-btn {
-            background: #2e1a44;
-            border: none;
-            padding: 8px 16px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #eadaff;
-            cursor: pointer;
-            border-radius: 40px;
-            white-space: nowrap;
-        }
+        .nav-strip { display: flex; background: #140a20; padding: 6px 12px; gap: 6px; overflow-x: auto; }
+        .nav-btn { background: #2e1a44; border: none; padding: 8px 16px; font-size: 0.75rem; font-weight: 600; color: #eadaff; cursor: pointer; border-radius: 40px; }
         .nav-btn.active { background: #9b4dff; color: #0f071a; }
         .panel { display: none; padding: 18px 14px; animation: fade 0.2s; }
         .panel.active-panel { display: block; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-        .btn-glow {
-            background: linear-gradient(95deg, #a258ff, #6e2dd4);
-            border: none;
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
-        .btn-secondary {
-            background: #392a52;
-            border: none;
-            border-radius: 50px;
-            padding: 6px 14px;
-            font-weight: bold;
-            color: #e7d9ff;
-            cursor: pointer;
-        }
-        .collect-block {
-            background: rgba(0,0,0,0.35);
-            border-radius: 1.5rem;
-            padding: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .rates-panel {
-            background: #1f1133cc;
-            border-radius: 1.2rem;
-            padding: 10px;
-            margin: 12px 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .rate-item {
-            background: #2d1d42;
-            padding: 5px 12px;
-            border-radius: 40px;
-        }
-        .exchange-panel {
-            background: #1f112ecc;
-            border-radius: 1.2rem;
-            padding: 10px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        .exchange-input {
-            background: #2d1d41;
-            border: 1px solid #b77cff;
-            padding: 6px 12px;
-            border-radius: 30px;
-            color: #f0e4ff;
-            width: 100px;
-            text-align: center;
-        }
+        .btn-glow { background: linear-gradient(95deg, #a258ff, #6e2dd4); border: none; border-radius: 50px; padding: 8px 16px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-secondary { background: #392a52; border: none; border-radius: 50px; padding: 6px 14px; font-weight: bold; color: #e7d9ff; cursor: pointer; }
+        .collect-block { background: rgba(0,0,0,0.35); border-radius: 1.5rem; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .exchange-panel { background: #1f112ecc; border-radius: 1.2rem; padding: 10px; margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+        .exchange-input { background: #2d1d41; border: 1px solid #b77cff; padding: 6px 12px; border-radius: 30px; color: #f0e4ff; width: 100px; text-align: center; }
         .miners-list { display: flex; flex-direction: column; gap: 10px; }
-        .miner-card {
-            background: rgba(40,25,60,0.8);
-            border-radius: 1.2rem;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 5px solid #bf7aff;
-        }
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .shop-item {
-            background: #2e1d48;
-            border-radius: 1rem;
-            padding: 10px;
-            text-align: center;
-        }
+        .miner-card { background: rgba(40,25,60,0.8); border-radius: 1.2rem; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #bf7aff; }
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+        .shop-item { background: #2e1d48; border-radius: 1rem; padding: 10px; text-align: center; }
         .tasks-stack { display: flex; flex-direction: column; gap: 12px; }
-        .task-card {
-            background: #1f1233;
-            border-radius: 1rem;
-            padding: 10px;
-        }
-        .progress-bar {
-            background: #3e2a58;
-            border-radius: 20px;
-            height: 6px;
-            overflow: hidden;
-            margin: 6px 0;
-        }
+        .task-card { background: #1f1233; border-radius: 1rem; padding: 10px; }
+        .progress-bar { background: #3e2a58; border-radius: 20px; height: 6px; overflow: hidden; margin: 6px 0; }
         .progress-fill { background: #c47dff; width: 0%; height: 100%; }
-        .vip-badge {
-            background: linear-gradient(95deg, #b77cff, #7d3ac1);
-            border-radius: 1.2rem;
-            padding: 8px 16px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .modal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-window {
-            background: #241a37;
-            border-radius: 1.8rem;
-            max-width: 320px;
-            width: 85%;
-            padding: 1.2rem;
-            border: 1px solid #bb7aff;
-        }
+        .vip-badge { background: linear-gradient(95deg, #b77cff, #7d3ac1); border-radius: 1.2rem; padding: 8px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; }
         .top-list { max-height: 300px; overflow-y: auto; }
-        .top-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0;
-            border-bottom: 1px solid #aa66ff40;
-        }
+        .top-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #aa66ff40; }
         .top-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-        .online-count {
-            background: #2d1d42;
-            border-radius: 20px;
-            padding: 4px 12px;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-        .admin-panel {
-            background: #1f1030;
-            border-radius: 1rem;
-            padding: 12px;
-            margin-top: 12px;
-        }
-        .preset-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+        .admin-panel { background: #1f1030; border-radius: 1rem; padding: 12px; margin-top: 12px; }
         .footer-note { font-size: 0.6rem; text-align: center; margin-top: 14px; opacity: 0.6; }
-        @media (max-width: 480px) {
-            .currency-card { padding: 2px 10px; }
-            .nav-btn { padding: 6px 12px; font-size: 0.7rem; }
-        }
     </style>
 </head>
 <body>
-<div id="accessDenied" style="text-align: center; padding: 40px; color: white; display: block;">
-    <h2>⛔ Доступ запрещён</h2>
-    <p>Игра работает только через Telegram Web App.<br>Откройте приложение через бота.</p>
+<div id="accessDenied" class="access-denied" style="display: block;">
+    <h2>⛔ Загрузка...</h2>
+    <p>Проверка окружения...</p>
 </div>
-<div class="game-container" id="gameRoot" style="display: none;"></div>
+<div class="game-container" id="gameRoot"></div>
 
 <script>
-    // -------------------- FIREBASE CONFIG --------------------
+    // -------------------- 1. НАДЁЖНАЯ ПРОВЕРКА TELEGRAM WEB APP --------------------
+    let tg = null;
+    let telegramUser = null;
+    let isTelegramEnv = false;
+
+    try {
+        // Пытаемся получить объект WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
+            const initData = tg.initDataUnsafe;
+            if (initData && initData.user) {
+                isTelegramEnv = true;
+                telegramUser = initData.user;
+                telegramUser.photoUrl = telegramUser.photo_url || "https://via.placeholder.com/32";
+                console.log("✅ Telegram Web App detected:", telegramUser);
+                document.getElementById('accessDenied').style.display = 'none';
+                document.getElementById('gameRoot').style.display = 'block';
+            } else {
+                throw new Error("No user data in initDataUnsafe");
+            }
+        } else {
+            throw new Error("window.Telegram.WebApp not found");
+        }
+    } catch (e) {
+        console.error("❌ Telegram Web App error:", e);
+        document.getElementById('accessDenied').innerHTML = `
+            <h2>⛔ Доступ запрещён</h2>
+            <p>Игра работает только через Telegram Web App.<br>
+            Пожалуйста, откройте приложение через кнопку меню бота или инлайн-кнопку с параметром <code>web_app</code>.</p>
+            <p>Если вы уже в Telegram, попробуйте перезапустить бота или очистить кеш.</p>
+        `;
+        throw e;
+    }
+
+    // -------------------- 2. FIREBASE CONFIG --------------------
     const firebaseConfig = {
         apiKey: "AIzaSyA8KWTdXPxfwniTrPqvea5zAc_ZMmjr5Yc",
         authDomain: "shaxter-7bdc7.firebaseapp.com",
@@ -244,32 +123,14 @@
     const database = firebase.database();
     const auth = firebase.auth();
 
-    // -------------------- TELEGRAM WEB APP --------------------
-    let tg;
-    try {
-        tg = window.Telegram?.WebApp;
-        if (!tg) throw new Error("No WebApp");
-        tg.expand();
-        tg.ready();
-        const initData = tg.initDataUnsafe;
-        if (!initData || !initData.user) throw new Error("No user data");
-        window.telegramUser = initData.user;
-        window.telegramUser.photoUrl = window.telegramUser.photo_url || "https://via.placeholder.com/32";
-        document.getElementById('accessDenied').style.display = 'none';
-    } catch (e) {
-        console.error(e);
-        document.getElementById('accessDenied').style.display = 'block';
-        throw e;
-    }
-
-    const userId = window.telegramUser.id.toString();
-    const userName = window.telegramUser.username || `user_${userId}`;
-    const firstName = window.telegramUser.first_name || "";
-    const photoUrl = window.telegramUser.photoUrl;
+    // -------------------- 3. ГЛОБАЛЬНЫЕ ДАННЫЕ --------------------
+    const userId = telegramUser.id.toString();
+    const userName = telegramUser.username || `user_${userId}`;
+    const firstName = telegramUser.first_name || "";
+    const photoUrl = telegramUser.photoUrl;
     const ADMIN_ID = "998579758";
     let isAdmin = (userId === ADMIN_ID);
 
-    // -------------------- ИГРОВЫЕ ДАННЫЕ --------------------
     let gameData = {
         diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
         miners: [0,0,0,0,0,0,0,0],
@@ -284,7 +145,7 @@
         islandUnlocked: false,
         lastExpedition: 0,
         playSeconds: 0,
-        referralCode: "",
+        referralCode: `REF${userId.slice(-6)}`,
         referrals: [],
         refEarnings: 0,
         storyTasks: [
@@ -299,7 +160,7 @@
     };
     let pendingPremRequests = [];
 
-    // -------------------- ИНИЦИАЛИЗАЦИЯ FIREBASE --------------------
+    // -------------------- 4. ИНИЦИАЛИЗАЦИЯ FIREBASE --------------------
     async function initFirebaseUser() {
         await auth.signInAnonymously();
         const userRef = database.ref('users/' + userId);
@@ -322,11 +183,12 @@
             if (data.isBlocked) {
                 document.getElementById('accessDenied').innerHTML = '<h2>🚫 Вы заблокированы</h2><p>Обратитесь к администратору @nukm0</p>';
                 document.getElementById('accessDenied').style.display = 'block';
+                document.getElementById('gameRoot').style.display = 'none';
                 return;
             }
             Object.assign(gameData, data);
         }
-        // Слушаем изменения
+        // Слушаем изменения в реальном времени
         userRef.on('value', (snap) => {
             const val = snap.val();
             if (val && !val.isBlocked) {
@@ -355,6 +217,7 @@
         document.getElementById('accessDenied').style.display = 'none';
     }
 
+    // Сохранение в Firebase
     function saveUserData() {
         const updates = {
             diamonds: gameData.diamonds, gold: gameData.gold, oil: gameData.oil,
@@ -370,7 +233,7 @@
         database.ref('users/' + userId).update(updates);
     }
 
-    // -------------------- ИГРОВАЯ ЛОГИКА --------------------
+    // -------------------- 5. ИГРОВАЯ ЛОГИКА (основные функции, аналогичны предыдущему коду) --------------------
     const minersData = [
         null,
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec: 100/3600 },
@@ -475,10 +338,8 @@
         showToast(`+${possible} 💸`);
     }
 
-    // Боксы
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
     function isProfitable() { return Math.random() < 0.05; }
-
     function bronzeDrop() {
         if(isProfitable()) {
             return { gold: randomRange(800,1000), diamonds: randomRange(8000,10000), bucks: randomRange(30,40), superBucks: randomRange(120,150), miners: { level:1, count: randomRange(1,2) } };
@@ -578,7 +439,7 @@
         setTimeout(()=>t.remove(), 2000);
     }
 
-    // Задания
+    // -------------------- ЗАДАНИЯ --------------------
     function updateStoryTasks(type, amount) {
         gameData.storyTasks.forEach(t => {
             if(t.type === type) {
@@ -598,7 +459,6 @@
         updateUIAll();
     }
 
-    // Премиум задания
     async function createPremiumTask() {
         let desc = document.getElementById("taskDesc").value.trim();
         let link = document.getElementById("taskLink").value.trim();
@@ -624,7 +484,7 @@
         if(confirm("Удалить задание?")) await database.ref('premiumTasks/' + taskId).remove();
     }
 
-    // Престиж
+    // -------------------- ПРЕСТИЖ --------------------
     function getPrestigeCost() {
         let count = gameData.prestigeCount;
         return { bucksCost: Math.floor(50 * Math.pow(1.10, count)), superCost: Math.floor(2000 * Math.pow(1.35, count)) };
@@ -656,7 +516,7 @@
         updateLeaderboard();
     }
 
-    // Остров, бонусы
+    // -------------------- ОСТРОВ, БОНУСЫ, VIP --------------------
     function buyIsland() {
         if(gameData.islandUnlocked) return showToast("Уже куплен");
         if(gameData.oil >= 100) { gameData.oil -= 100; gameData.islandUnlocked = true; updateUIAll(); saveUserData(); showToast("Остров открыт"); }
@@ -712,24 +572,7 @@
         updateUIAll(); saveUserData();
     }
 
-    // Отрисовка UI
-    function updateUIAll() {
-        document.getElementById("diamondsVal").innerText = Math.floor(gameData.diamonds);
-        document.getElementById("goldVal").innerText = Math.floor(gameData.gold);
-        document.getElementById("oilVal").innerText = gameData.oil.toFixed(3);
-        document.getElementById("bucksVal").innerText = Math.floor(gameData.bucks);
-        document.getElementById("superVal").innerText = Math.floor(gameData.superBucks);
-        document.getElementById("pendingDisp").innerText = Math.floor(gameData.pending);
-        let maxStore = getMaxStorage();
-        let storeText = gameData.vipActive ? "∞ (VIP)" : `${Math.floor(gameData.pending)} / ${Math.floor(maxStore)}`;
-        document.getElementById("storageInfo").innerHTML = `Склад: ${storeText} (3ч)`;
-        document.getElementById("prestigeMult").innerText = gameData.prestigeMult.toFixed(2);
-        let { bucksCost, superCost } = getPrestigeCost();
-        document.getElementById("prestigeCostBucks").innerText = bucksCost;
-        document.getElementById("prestigeCostSuper").innerText = superCost;
-        let remain = gameData.vipActive ? Math.max(0, (gameData.vipExpire - Date.now())/1000) : 0;
-        document.getElementById("vipTimer").innerHTML = gameData.vipActive ? `⏳ ${Math.floor(remain/3600)}ч` : "неактивен";
-    }
+    // -------------------- ОТРИСОВКА UI --------------------
     function renderMiners() {
         let cont = document.getElementById("minersList");
         if(!cont) return;
@@ -747,38 +590,43 @@
     }
     function renderShop() {
         const superGrid = document.getElementById("superShopGrid");
-        superGrid.innerHTML = `
-            <div class="shop-item"><b>📦 Бронзовый</b><br>119💸<br><button class="btn-secondary" id="bronzePreview">Осмотреть</button><button class="btn-glow" id="bronzeBuy">Купить</button></div>
-            <div class="shop-item"><b>📦 Серебряный</b><br>149💸<br><button class="btn-secondary" id="silverPreview">Осмотреть</button><button class="btn-glow" id="silverBuy">Купить</button></div>
-            <div class="shop-item"><b>📦 Золотой</b><br>229💸<br><button class="btn-secondary" id="goldenPreview">Осмотреть</button><button class="btn-glow" id="goldenBuy">Купить</button></div>`;
-        document.getElementById("bronzeBuy").onclick = () => openBox(119, 'super', bronzeDrop);
-        document.getElementById("silverBuy").onclick = () => openBox(149, 'super', silverDrop);
-        document.getElementById("goldenBuy").onclick = () => openBox(229, 'super', goldenDrop);
-        document.getElementById("bronzePreview").onclick = () => showModal("Бронзовый клад", ["💰 1-1000", "💎 1-10000", "💵 0-40", "💸 1-150", "⛏️ шахтёр 1 ур."]);
-        document.getElementById("silverPreview").onclick = () => showModal("Серебряный клад", ["💰 1-3000", "💎 1-25000", "💸 1-350", "⛏️ шахтёр 2 ур."]);
-        document.getElementById("goldenPreview").onclick = () => showModal("Золотой клад", ["💰 1-5000", "💎 1-50000", "💸 1-750", "⛏️ шахтёр 4 ур."]);
-
+        if(superGrid) {
+            superGrid.innerHTML = `
+                <div class="shop-item"><b>📦 Бронзовый</b><br>119💸<br><button class="btn-secondary" id="bronzePreview">Осмотреть</button><button class="btn-glow" id="bronzeBuy">Купить</button></div>
+                <div class="shop-item"><b>📦 Серебряный</b><br>149💸<br><button class="btn-secondary" id="silverPreview">Осмотреть</button><button class="btn-glow" id="silverBuy">Купить</button></div>
+                <div class="shop-item"><b>📦 Золотой</b><br>229💸<br><button class="btn-secondary" id="goldenPreview">Осмотреть</button><button class="btn-glow" id="goldenBuy">Купить</button></div>`;
+            document.getElementById("bronzeBuy")?.addEventListener("click", () => openBox(119, 'super', bronzeDrop));
+            document.getElementById("silverBuy")?.addEventListener("click", () => openBox(149, 'super', silverDrop));
+            document.getElementById("goldenBuy")?.addEventListener("click", () => openBox(229, 'super', goldenDrop));
+            document.getElementById("bronzePreview")?.addEventListener("click", () => showModal("Бронзовый клад", ["💰 1-1000", "💎 1-10000", "💵 0-40", "💸 1-150", "⛏️ шахтёр 1 ур."]));
+            document.getElementById("silverPreview")?.addEventListener("click", () => showModal("Серебряный клад", ["💰 1-3000", "💎 1-25000", "💸 1-350", "⛏️ шахтёр 2 ур."]));
+            document.getElementById("goldenPreview")?.addEventListener("click", () => showModal("Золотой клад", ["💰 1-5000", "💎 1-50000", "💸 1-750", "⛏️ шахтёр 4 ур."]));
+        }
         const premiumGrid = document.getElementById("premiumShopGrid");
-        premiumGrid.innerHTML = `
-            <div class="shop-item"><b>🔥 StarterPack</b><br>99💵<br><button class="btn-secondary" id="starterPreview">Осмотреть</button><button class="btn-glow" id="starterBuy">Купить</button></div>
-            <div class="shop-item"><b>🛢 Нефтяной клад</b><br>149💵<br><button class="btn-secondary" id="oilChestPreview">Осмотреть</button><button class="btn-glow" id="oilChestBuy">Купить</button></div>`;
-        document.getElementById("starterBuy").onclick = () => openBox(99, 'bucks', starterDrop);
-        document.getElementById("oilChestBuy").onclick = () => openBox(149, 'bucks', oilChestDrop);
-        document.getElementById("starterPreview").onclick = () => showModal("StarterPack", ["💰 1k-100k", "💎 1k-500k", "💸 10-1000", "⛏️ шахтёры 3-6 ур."]);
-        document.getElementById("oilChestPreview").onclick = () => showModal("Нефтяной клад", ["🛢️ 20-160"]);
-
+        if(premiumGrid) {
+            premiumGrid.innerHTML = `
+                <div class="shop-item"><b>🔥 StarterPack</b><br>99💵<br><button class="btn-secondary" id="starterPreview">Осмотреть</button><button class="btn-glow" id="starterBuy">Купить</button></div>
+                <div class="shop-item"><b>🛢 Нефтяной клад</b><br>149💵<br><button class="btn-secondary" id="oilChestPreview">Осмотреть</button><button class="btn-glow" id="oilChestBuy">Купить</button></div>`;
+            document.getElementById("starterBuy")?.addEventListener("click", () => openBox(99, 'bucks', starterDrop));
+            document.getElementById("oilChestBuy")?.addEventListener("click", () => openBox(149, 'bucks', oilChestDrop));
+            document.getElementById("starterPreview")?.addEventListener("click", () => showModal("StarterPack", ["💰 1k-100k", "💎 1k-500k", "💸 10-1000", "⛏️ шахтёры 3-6 ур."]));
+            document.getElementById("oilChestPreview")?.addEventListener("click", () => showModal("Нефтяной клад", ["🛢️ 20-160"]));
+        }
         const oilGrid = document.getElementById("oilShopGrid");
-        oilGrid.innerHTML = `<div class="shop-item"><b>🛢️ Нефтяной контейнер</b><br>20🛢️<br><button class="btn-secondary" id="oilBoxPreview">Осмотреть</button><button class="btn-glow" id="oilBoxBuy">Купить</button></div>`;
-        document.getElementById("oilBoxBuy").onclick = () => openBox(20, 'oil', oilResourceBoxDrop);
-        document.getElementById("oilBoxPreview").onclick = () => showModal("Нефтяной контейнер", ["💰 500-30k", "💎 500-30k", "⛏️ шахтёр 5-6 ур."]);
-
+        if(oilGrid) {
+            oilGrid.innerHTML = `<div class="shop-item"><b>🛢️ Нефтяной контейнер</b><br>20🛢️<br><button class="btn-secondary" id="oilBoxPreview">Осмотреть</button><button class="btn-glow" id="oilBoxBuy">Купить</button></div>`;
+            document.getElementById("oilBoxBuy")?.addEventListener("click", () => openBox(20, 'oil', oilResourceBoxDrop));
+            document.getElementById("oilBoxPreview")?.addEventListener("click", () => showModal("Нефтяной контейнер", ["💰 500-30k", "💎 500-30k", "⛏️ шахтёр 5-6 ур."]));
+        }
         const vipGrid = document.getElementById("vipShopGrid");
-        vipGrid.innerHTML = `
-            <div class="shop-item"><b>VIP 1 день</b><br>99💵<button class="btn-glow" data-vip="1">Купить</button></div>
-            <div class="shop-item"><b>VIP 7 дней</b><br>499💵<button class="btn-glow" data-vip="7">Купить</button></div>
-            <div class="shop-item"><b>VIP 30 дней</b><br>999💵<button class="btn-glow" data-vip="30">Купить</button></div>
-            <div class="shop-item"><b>VIP НАВСЕГДА</b><br>1999💵<button class="btn-glow" data-vip="3650">Купить</button></div>`;
-        document.querySelectorAll("[data-vip]").forEach(btn => btn.onclick = () => buyVIP(parseInt(btn.dataset.vip), parseInt(btn.parentElement.innerText.match(/\d+/)[0])));
+        if(vipGrid) {
+            vipGrid.innerHTML = `
+                <div class="shop-item"><b>VIP 1 день</b><br>99💵<button class="btn-glow" data-vip="1">Купить</button></div>
+                <div class="shop-item"><b>VIP 7 дней</b><br>499💵<button class="btn-glow" data-vip="7">Купить</button></div>
+                <div class="shop-item"><b>VIP 30 дней</b><br>999💵<button class="btn-glow" data-vip="30">Купить</button></div>
+                <div class="shop-item"><b>VIP НАВСЕГДА</b><br>1999💵<button class="btn-glow" data-vip="3650">Купить</button></div>`;
+            document.querySelectorAll("[data-vip]").forEach(btn => btn.addEventListener("click", () => buyVIP(parseInt(btn.dataset.vip), parseInt(btn.parentElement.innerText.match(/\d+/)[0]))));
+        }
     }
     function renderStoryTasks() {
         let cont = document.getElementById("storyTasksList");
@@ -802,8 +650,8 @@
             div.innerHTML = `<div><b>${t.desc}</b><br>Награда: ${t.rewardAmount} ${t.rewardCurrency}</div><button class="btn-secondary" data-task="${t.id}">Выполнить</button>${isAdmin? `<button class="btn-secondary" data-del="${t.id}">Удалить</button>`:''}`;
             cont.appendChild(div);
         });
-        document.querySelectorAll("[data-task]").forEach(btn => btn.onclick = () => completePremiumTask(btn.dataset.task));
-        if(isAdmin) document.querySelectorAll("[data-del]").forEach(btn => btn.onclick = () => deleteTask(btn.dataset.del));
+        document.querySelectorAll("[data-task]").forEach(btn => btn.addEventListener("click", () => completePremiumTask(btn.dataset.task)));
+        if(isAdmin) document.querySelectorAll("[data-del]").forEach(btn => btn.addEventListener("click", () => deleteTask(btn.dataset.del)));
     }
     function renderAdminPanel() {
         if(!isAdmin) return;
@@ -818,12 +666,12 @@
             <div><button id="adminBlockBtn">Заблокировать</button><button id="adminUnblockBtn">Разблокировать</button></div>
             <hr><h5>Заявки</h5><div id="adminRequestsList"></div></div>`;
         profileDiv.insertAdjacentHTML('beforeend', adminHtml);
-        document.getElementById("adminSearchBtn").onclick = searchUser;
-        document.getElementById("adminGiveBtn").onclick = () => modifyBalance('give');
-        document.getElementById("adminTakeBtn").onclick = () => modifyBalance('take');
-        document.getElementById("adminBlockBtn").onclick = () => toggleBlock(true);
-        document.getElementById("adminUnblockBtn").onclick = () => toggleBlock(false);
-        document.querySelectorAll("#adminPanel .preset-buttons button").forEach(btn => btn.onclick = () => { document.querySelectorAll("#adminPanel .preset-buttons button").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); });
+        document.getElementById("adminSearchBtn")?.addEventListener("click", searchUser);
+        document.getElementById("adminGiveBtn")?.addEventListener("click", () => modifyBalance('give'));
+        document.getElementById("adminTakeBtn")?.addEventListener("click", () => modifyBalance('take'));
+        document.getElementById("adminBlockBtn")?.addEventListener("click", () => toggleBlock(true));
+        document.getElementById("adminUnblockBtn")?.addEventListener("click", () => toggleBlock(false));
+        document.querySelectorAll("#adminPanel .preset-buttons button").forEach(btn => btn.addEventListener("click", () => { document.querySelectorAll("#adminPanel .preset-buttons button").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); }));
         renderRequests();
     }
     async function searchUser() {
@@ -837,26 +685,26 @@
         else document.getElementById("adminUserInfo").innerHTML = "Не найден";
     }
     async function modifyBalance(action) {
-        let userId = document.getElementById("selectedUserId")?.value;
-        if(!userId) return;
+        let uid = document.getElementById("selectedUserId")?.value;
+        if(!uid) return;
         let currency = document.querySelector("#adminPanel .preset-buttons button.active")?.dataset.currency;
         if(!currency) return;
         let amount = parseInt(document.getElementById("adminAmount").value);
         if(isNaN(amount)) return;
-        let ref = database.ref('users/' + userId);
+        let ref = database.ref('users/' + uid);
         ref.transaction(user => { if(user) { if(action==='give') user[currency] += amount; else user[currency] = Math.max(0, user[currency] - amount); } return user; });
     }
     async function toggleBlock(block) {
-        let userId = document.getElementById("selectedUserId")?.value;
-        if(!userId) return;
-        await database.ref('users/' + userId).update({ isBlocked: block });
+        let uid = document.getElementById("selectedUserId")?.value;
+        if(!uid) return;
+        await database.ref('users/' + uid).update({ isBlocked: block });
         alert(block?"Заблокирован":"Разблокирован");
     }
     async function renderRequests() {
         let container = document.getElementById("adminRequestsList");
         if(!container) return;
         container.innerHTML = pendingPremRequests.map(req => `<div>${req.username}: ${req.taskDesc} <button data-approve="${req.id}">✅</button></div>`).join('');
-        document.querySelectorAll("[data-approve]").forEach(btn => btn.onclick = async () => {
+        document.querySelectorAll("[data-approve]").forEach(btn => btn.addEventListener("click", async () => {
             let req = pendingPremRequests.find(r=>r.id === btn.dataset.approve);
             if(req) {
                 let userRef = database.ref('users/' + req.userId);
@@ -873,7 +721,7 @@
                 });
                 await database.ref('premiumRequests/' + req.id).remove();
             }
-        });
+        }));
     }
     function renderTop() {
         database.ref('users').orderByChild('totalMined').limitToLast(100).once('value', snap => {
@@ -885,8 +733,47 @@
         });
     }
     function updateLeaderboard() { renderTop(); }
+    function updateUIAll() {
+        document.getElementById("diamondsVal").innerText = Math.floor(gameData.diamonds);
+        document.getElementById("goldVal").innerText = Math.floor(gameData.gold);
+        document.getElementById("oilVal").innerText = gameData.oil.toFixed(3);
+        document.getElementById("bucksVal").innerText = Math.floor(gameData.bucks);
+        document.getElementById("superVal").innerText = Math.floor(gameData.superBucks);
+        document.getElementById("pendingDisp").innerText = Math.floor(gameData.pending);
+        let maxStore = getMaxStorage();
+        let storeText = gameData.vipActive ? "∞ (VIP)" : `${Math.floor(gameData.pending)} / ${Math.floor(maxStore)}`;
+        document.getElementById("storageInfo").innerHTML = `Склад: ${storeText} (3ч)`;
+        document.getElementById("prestigeMult").innerText = gameData.prestigeMult.toFixed(2);
+        let { bucksCost, superCost } = getPrestigeCost();
+        document.getElementById("prestigeCostBucks").innerText = bucksCost;
+        document.getElementById("prestigeCostSuper").innerText = superCost;
+        let remain = gameData.vipActive ? Math.max(0, (gameData.vipExpire - Date.now())/1000) : 0;
+        document.getElementById("vipTimer").innerHTML = gameData.vipActive ? `⏳ ${Math.floor(remain/3600)}ч` : "неактивен";
+    }
+    function renderIsland() {
+        let statusDiv = document.getElementById("islandStatus");
+        let buyBtn = document.getElementById("buyIslandBtn");
+        let expBtn = document.getElementById("expeditionBtn");
+        if(gameData.islandUnlocked) {
+            buyBtn.disabled = true;
+            buyBtn.textContent = "✅ Остров куплен";
+            let now = Date.now();
+            let cd = 12*3600*1000;
+            let ready = (!gameData.lastExpedition || (now - gameData.lastExpedition) >= cd);
+            expBtn.disabled = !ready;
+            if(!ready && gameData.lastExpedition) {
+                let left = cd - (now - gameData.lastExpedition);
+                statusDiv.innerHTML = `⏳ ${Math.floor(left/3600000)}ч ${Math.floor((left%3600000)/60000)}мин`;
+            } else statusDiv.innerHTML = `✅ Готова к экспедиции!`;
+        } else { statusDiv.innerHTML = "🔒 Нужно 100 нефти"; expBtn.disabled = true; }
+    }
+    function startGameLoop() {
+        setInterval(() => { gameData.playSeconds++; saveUserData(); updateUIAll(); }, 1000);
+        setInterval(() => { updatePending(); if(gameData.vipActive && gameData.vipExpire < Date.now()) gameData.vipActive = false; saveUserData(); }, 1000);
+        setInterval(() => saveUserData(), 10000);
+    }
 
-    // Построение полного интерфейса
+    // -------------------- ПОЛНАЯ ОТРИСОВКА ИНТЕРФЕЙСА --------------------
     function renderFullUI() {
         const container = document.getElementById("gameRoot");
         container.innerHTML = `
@@ -909,7 +796,6 @@
             <div id="minersPanel" class="panel active-panel">
                 <div class="vip-badge"><span>🎖️ VIP статус</span><span id="vipTimer">неактивен</span></div>
                 <div class="collect-block"><div><span>📦 Накоплено: <strong id="pendingDisp">0</strong> 💎</span><div id="storageInfo">Склад: 0 / 3ч</div></div><button class="btn-glow" id="collectBtn">Собрать</button></div>
-                <div class="rates-panel"><div class="rate-item">💎→💰 100💎 = 1💰</div><div class="rate-item">💰→💸 10💰 = 1💸</div></div>
                 <div class="exchange-panel"><span>Обмен алмазов</span><input type="number" id="exchangeDiaInput" class="exchange-input" value="100"><button class="btn-secondary" id="exchangeBtn">Обменять</button><button class="btn-secondary" id="exchangeAllBtn">Всё</button></div>
                 <div class="exchange-panel"><span>Купить 💸</span><input type="number" id="superBuyInput" class="exchange-input" value="100"><button class="btn-secondary" id="buySuperBtn">Купить</button><button class="btn-secondary" id="buySuperMaxBtn">Макс</button></div>
                 <div class="miners-list" id="minersList"></div>
@@ -923,7 +809,6 @@
             <div id="tasksPanel" class="panel">
                 <div class="shop-title">📖 Сюжетные задания</div><div class="tasks-stack" id="storyTasksList"></div>
                 <div class="shop-title">🏆 Премиум задания</div><div class="tasks-stack" id="premiumTasksList"></div>
-                <div class="footer-note">Нажмите «Выполнить» → откроется ссылка, затем администратор выдаст награду.</div>
             </div>
             <div id="islandPanel" class="panel">
                 <div style="background:#1f112eb3; border-radius:1rem; padding:1rem;">
@@ -981,7 +866,7 @@
                     <p><strong>📦 Боксы</strong> — шанс окупаемости 5%.</p>
                 </div>
             </div>`;
-        // Обработчики вкладок
+        // Навешиваем обработчики вкладок
         document.querySelectorAll(".nav-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
@@ -992,6 +877,7 @@
                 if(btn.dataset.panel === "tasks") { renderStoryTasks(); renderPremiumTasks(); }
                 if(btn.dataset.panel === "profile") renderAdminPanel();
                 if(btn.dataset.panel === "top") renderTop();
+                if(btn.dataset.panel === "island") renderIsland();
             });
         });
         document.getElementById("collectBtn").onclick = collect;
@@ -1006,18 +892,18 @@
         document.getElementById("expeditionBtn").onclick = startExpedition;
         document.getElementById("copyRefBtn").onclick = () => { navigator.clipboard.writeText(window.location.href); showToast("Ссылка скопирована"); };
         document.getElementById("createPremiumTaskBtn").onclick = createPremiumTask;
-        // Выбор валюты
+        // Выбор валюты для создания задания
         document.querySelectorAll(".currency-option").forEach(opt => {
             opt.onclick = () => { document.querySelectorAll(".currency-option").forEach(o=>o.classList.remove("selected")); opt.classList.add("selected"); };
         });
         document.querySelector(".currency-option").classList.add("selected");
-        // Таймер онлайн
+        // Онлайн счётчик (имитация)
         setInterval(() => { let online = Math.floor(80 + Math.random() * 250); document.getElementById("onlineCount").innerText = online; }, 30000);
-        // Время в игре
+        // Обновление времени в игре
         setInterval(() => {
             let sec = gameData.playSeconds;
             let days = Math.floor(sec/86400), hours = Math.floor((sec%86400)/3600), mins = Math.floor((sec%3600)/60);
-            document.getElementById("playTimePretty").innerText = days?`${days}д ${hours}ч`:(hours?`${hours}ч ${mins}мин`:(mins?`${mins}мин`:`${sec}сек`));
+            document.getElementById("playTimePretty").innerHTML = days?`${days}д ${hours}ч`:(hours?`${hours}ч ${mins}мин`:(mins?`${mins}мин`:`${sec}сек`));
             document.getElementById("refCount").innerText = gameData.referrals.length;
             document.getElementById("refEarn").innerText = gameData.refEarnings.toFixed(2);
             document.getElementById("refLink").innerText = window.location.href;
@@ -1025,30 +911,9 @@
         updateUIAll(); renderMiners(); renderShop(); renderStoryTasks(); renderPremiumTasks(); renderIsland(); renderTop();
         if(isAdmin) renderAdminPanel();
     }
-    function renderIsland() {
-        let statusDiv = document.getElementById("islandStatus");
-        let buyBtn = document.getElementById("buyIslandBtn");
-        let expBtn = document.getElementById("expeditionBtn");
-        if(gameData.islandUnlocked) {
-            buyBtn.disabled = true;
-            buyBtn.textContent = "✅ Остров куплен";
-            let now = Date.now();
-            let cd = 12*3600*1000;
-            let ready = (!gameData.lastExpedition || (now - gameData.lastExpedition) >= cd);
-            expBtn.disabled = !ready;
-            if(!ready && gameData.lastExpedition) {
-                let left = cd - (now - gameData.lastExpedition);
-                statusDiv.innerHTML = `⏳ ${Math.floor(left/3600000)}ч ${Math.floor((left%3600000)/60000)}мин`;
-            } else statusDiv.innerHTML = `✅ Готова к экспедиции!`;
-        } else { statusDiv.innerHTML = "🔒 Нужно 100 нефти"; expBtn.disabled = true; }
-    }
-    function startGameLoop() {
-        setInterval(() => { gameData.playSeconds++; saveUserData(); updateUIAll(); }, 1000);
-        setInterval(() => { updatePending(); if(gameData.vipActive && gameData.vipExpire < Date.now()) gameData.vipActive = false; saveUserData(); }, 1000);
-        setInterval(() => saveUserData(), 10000);
-    }
+
+    // -------------------- ЗАПУСК --------------------
     initFirebaseUser();
 </script>
 </body>
 </html>
-```
