@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -119,15 +120,13 @@
             font-size: 0.7rem;
             word-break: break-all;
         }
-        .vip-icon {
-            color: #ffd700;
-            margin-left: 4px;
-            font-size: 0.8rem;
-        }
+        .vip-icon { color: #ffd700; margin-left: 4px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-<div class="loading-screen" id="loadingScreen">🔄 Загрузка...</div>
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner">🔄 Загрузка...</div>
+</div>
 <div class="game-container" id="gameRoot"></div>
 
 <script>
@@ -157,7 +156,7 @@
     const BOT_USERNAME = "minermine1_bot";
     const SUPPORT_CHAT = "@sup_miner_help";
     
-    // ==================== 2. FIREBASE CONFIG ====================
+    // ==================== 2. FIREBASE ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA8KWTdXPxfwniTrPqvea5zAc_ZMmjr5Yc",
         authDomain: "shaxter-7bdc7.firebaseapp.com",
@@ -171,7 +170,7 @@
     const database = firebase.database();
     const auth = firebase.auth();
     
-    // ==================== 3. ИГРОВЫЕ ДАННЫЕ (расширены) ====================
+    // ==================== 3. ИГРОВЫЕ ДАННЫЕ ====================
     let gameData = {
         diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
         miners: [0,0,0,0,0,0,0,0],
@@ -192,11 +191,11 @@
         refEarnings: 0,
         // Ежедневные задания входа (30 дней)
         dailyLogin: { lastLoginDate: 0, currentDay: 0, streak: 0 },
-        // Прогрессивные задания на покупку шахтёров (10 уровней)
-        progressiveTasks: { 
-            type: "buyMiners", 
-            level: 0, 
-            current: 0, 
+        // Прогрессивные задания (покупка шахтёров, 10 уровней)
+        progressiveTasks: {
+            type: "buyMiners",
+            level: 0,
+            current: 0,
             need: [5,10,20,35,55,80,110,150,200,300],
             rewards: [
                 { minerLevel: 1, count: 2 },   // 1 уровень
@@ -297,7 +296,7 @@
         database.ref('users/' + userId).update(updates);
     }
     
-    // ==================== 5. ИГРОВАЯ ЛОГИКА (расширена) ====================
+    // ==================== 5. ИГРОВАЯ ЛОГИКА ====================
     const minersData = [
         null,
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec: 100/3600 },
@@ -362,7 +361,6 @@
         } else showToast(`Нужно ${price}💰`);
     }
     
-    // Прогрессивное задание
     function updateProgressiveTask(amount) {
         let pt = gameData.progressiveTasks;
         pt.current += amount;
@@ -417,7 +415,7 @@
         updateUIAll();
     }
     
-    // Боксы (без донатной валюты)
+    // Боксы (из бронзового убраны 💵)
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
     function isProfitable() { return Math.random() < 0.05; }
     function bronzeDrop() {
@@ -587,7 +585,7 @@
         updateUIAll(); renderMiners(); saveUserData();
     }
     
-    // ==================== ПРЕМИУМ-ЗАДАНИЯ (только для админа) ====================
+    // ==================== ПРЕМИУМ-ЗАДАНИЯ (только админ создаёт) ====================
     async function createPremiumTask() {
         if (!isAdmin) return;
         let desc = prompt("Описание задания:");
@@ -692,7 +690,8 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ chat_id: SUPPORT_CHAT, text: text })
             });
-            if (response.ok) showToast("Сообщение отправлено в поддержку");
+            const data = await response.json();
+            if (data.ok) showToast("Сообщение отправлено в поддержку");
             else showToast("Ошибка отправки. Попробуйте позже.");
         } catch(e) { showToast("Ошибка сети"); }
     }
@@ -730,7 +729,7 @@
         });
     }
     
-    // ==================== АДМИН-ПАНЕЛЬ (с созданием премиум-заданий) ====================
+    // ==================== АДМИН-ПАНЕЛЬ (с премиум-заданиями) ====================
     async function searchUser() {
         let query = document.getElementById("adminSearchUser").value;
         let usersRef = database.ref('users');
@@ -1100,7 +1099,6 @@
                 <div class="top-list" id="topList"></div>
             </div>`;
         
-        // Обработчики
         document.querySelectorAll(".nav-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
@@ -1149,3 +1147,4 @@
 </script>
 </body>
 </html>
+```
