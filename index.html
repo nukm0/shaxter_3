@@ -401,7 +401,7 @@
 <body>
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
-    <div>🔄 Подключение к Firebase...</div>
+    <div id="loadingText">🔄 Подключение к Firebase...</div>
 </div>
 
 <div class="game-container" style="display:none;" id="gameContainer">
@@ -565,7 +565,7 @@
 </div>
 
 <script>
-    // 🔥 КОНФИГУРАЦИЯ FIREBASE (исправленный databaseURL)
+    // 🔥 КОНФИГУРАЦИЯ FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyA8KWTdXPxfwniTrPqvea5zAc_ZMmjr5Yc",
         authDomain: "shaxter-7bdc7.firebaseapp.com",
@@ -577,23 +577,27 @@
         databaseURL: "https://shaxter-7bdc7-default-rtdb.firebaseio.com"
     };
 
-    // Инициализация Firebase
+    // Глобальные переменные Firebase
     let database, auth;
-    
-    try {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        auth = firebase.auth();
-        console.log("Firebase инициализирован успешно!");
-        
-        // Скрываем загрузку через 1 секунду
-        setTimeout(() => {
-            document.getElementById("loadingOverlay").style.display = "none";
-            document.getElementById("gameContainer").style.display = "block";
-        }, 1000);
-    } catch(e) {
-        console.error("Ошибка Firebase:", e);
-        document.getElementById("loadingOverlay").innerHTML = '<div style="text-align:center; padding:20px;">❌ Ошибка подключения к Firebase<br><button onclick="location.reload()" class="btn-glow" style="margin-top:20px;">Перезагрузить</button></div>';
+    let firebaseInitialized = false;
+
+    // Инициализация Firebase
+    function initializeFirebase() {
+        return new Promise((resolve, reject) => {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                auth = firebase.auth();
+                firebaseInitialized = true;
+                console.log("✅ Firebase инициализирован успешно!");
+                resolve(true);
+            } catch(e) {
+                console.error("❌ Ошибка Firebase:", e);
+                reject(e);
+            }
+        });
     }
 
     // Данные шахтёров
@@ -884,7 +888,6 @@
     function openPremiumBox(boxId) {
         let box = premiumBoxes[boxId];
         if(game.bucks < box.price) { showToast(`Нужно ${box.price} 💵`); return; }
-        // Тратим донат - начисляем 5% рефералу
         game.bucks -= box.price;
         game.totalDonatedSpent = (game.totalDonatedSpent || 0) + box.price;
         if(!isGuest && game.referredBy && game.referredBy !== "") {
@@ -914,7 +917,6 @@
 
     function buyVIP(days, costBucks) {
         if(game.bucks < costBucks) { showToast(`Нужно ${costBucks} 💵`); return; }
-        // Тратим донат - начисляем 5% рефералу
         game.bucks -= costBucks;
         game.totalDonatedSpent = (game.totalDonatedSpent || 0) + costBucks;
         if(!isGuest && game.referredBy && game.referredBy !== "") {
@@ -940,7 +942,6 @@
         } catch(e) { console.error("Ошибка начисления рефералу:", e); }
     }
 
-    // Престиж
     function getPrestigeCost() {
         let count = game.prestigeCount;
         return { bucksCost: Math.floor(50 * Math.pow(1.10, count)), superCost: Math.floor(2000 * Math.pow(1.35, count)) };
@@ -973,7 +974,6 @@
         updateLeaderboard();
     }
 
-    // Остров
     function buyIsland() {
         if(game.islandUnlocked) return showToast("Уже куплен");
         if(game.oil >= 100) { game.oil -= 100; game.islandUnlocked = true; updateUI(); renderIsland(); saveToFirebase(); showToast("Остров открыт"); }
@@ -997,7 +997,6 @@
         updateLeaderboard();
     }
 
-    // Бонусы
     function dailyReward() {
         let now = Date.now();
         if(game.lastDaily && (now - game.lastDaily) < 24*3600*1000) { showToast("Бонус через 24ч"); return; }
@@ -1022,7 +1021,6 @@
         updateUI(); renderMiners(); saveToFirebase();
     }
 
-    // Премиум-задания
     function createPremiumTask() {
         let desc = document.getElementById("taskDesc").value.trim();
         let link = document.getElementById("taskLink").value.trim();
@@ -1066,7 +1064,6 @@
         updateUI();
     }
 
-    // Топ и лидерборд
     async function updateLeaderboard() {
         if(isGuest) return;
         if(currentUser) {
@@ -1097,14 +1094,38 @@
         } catch(e) { console.error("Ошибка загрузки топа:", e); }
     }
 
-    // Telegram авторизация
-    function initTelegramAuth() {
-        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-            let tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-            let telegramId = tgUser.id.toString();
-            auth.signInAnonymously().then(async (userCred) => {
-                let userRef = database.ref('users/' + userCred.user.uid);
-                let snapshot = await userRef.once('value');
+    // АВТОРИЗАЦИЯ
+    async function signInAsGuest() {
+        return new Promise((resolve) => {
+            auth.signInAnonymously().then(userCred => {
+                resolve(userCred.user);
+            }).catch(error => {
+                console.error("Гостевая авторизация:", error);
+                resolve(null);
+            });
+        });
+    }
+
+    async function initTelegramAuth() {
+        try {
+            document.getElementById("loadingText").innerText = "🔐 Авторизация...";
+            
+            let tgUser = null;
+            if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
+                tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+            }
+            
+            // Входим анонимно
+            let userCred = await auth.signInAnonymously();
+            currentUser = userCred.user;
+            let uid = currentUser.uid;
+            
+            // Создаем или обновляем пользователя
+            let userRef = database.ref('users/' + uid);
+            let snapshot = await userRef.once('value');
+            
+            if(tgUser) {
+                let telegramId = tgUser.id.toString();
                 if(!snapshot.exists()) {
                     let newRefCode = "REF" + Math.random().toString(36).substring(2,8).toUpperCase();
                     await userRef.set({
@@ -1117,16 +1138,34 @@
                         playSeconds: 0, referralCode: newRefCode, referredBy: "", referrals: [], refEarnings: 0
                     });
                 }
-                await loadUserData(userCred.user.uid);
-                currentUser = userCred.user;
                 isGuest = false;
                 document.getElementById("telegramLoginSection").style.display = "none";
                 document.getElementById("userGameSection").style.display = "block";
+                await loadUserData(uid);
                 showToast("Добро пожаловать, " + (tgUser.first_name || "Игрок") + "!");
-            });
+            } else {
+                isGuest = true;
+                document.getElementById("telegramLoginSection").style.display = "none";
+                document.getElementById("userGameSection").style.display = "block";
+                let saved = localStorage.getItem("minerEmpireSave");
+                if(saved) {
+                    try { Object.assign(game, JSON.parse(saved)); }
+                    catch(e) { console.error(e); }
+                }
+                updateUI(); renderMiners(); renderShop(); renderStoryTasks(); renderPremiumTasks(); renderIsland();
+                showToast("Гостевой режим");
+            }
+            
             return true;
+        } catch(e) {
+            console.error("Ошибка авторизации:", e);
+            isGuest = true;
+            document.getElementById("telegramLoginSection").style.display = "none";
+            document.getElementById("userGameSection").style.display = "block";
+            updateUI(); renderMiners();
+            showToast("Ошибка авторизации, гостевой режим");
+            return false;
         }
-        return false;
     }
 
     async function loadUserData(uid) {
@@ -1155,15 +1194,18 @@
         userRef.on('value', (snapshot) => {
             if(snapshot.exists()) {
                 let data = snapshot.val();
-                Object.assign(game, data);
-                updateUI(); renderMiners(); renderStoryTasks(); renderIsland();
+                // Не перезаписываем локальные изменения, только если данные изменились извне
+                if(data.lastSaved !== game._lastSaved) {
+                    Object.assign(game, data);
+                    updateUI(); renderMiners(); renderStoryTasks(); renderIsland();
+                }
             }
         });
     }
 
     function saveToFirebase() {
         if(!isGuest && currentUser) {
-            database.ref('users/' + currentUser.uid).update({
+            let dataToSave = {
                 diamonds: game.diamonds, gold: game.gold, oil: game.oil, bucks: game.bucks, superBucks: game.superBucks,
                 miners: game.miners, pending: game.pending, totalMined: game.totalMined,
                 prestigeMult: game.prestigeMult, prestigeCount: game.prestigeCount,
@@ -1171,8 +1213,11 @@
                 lastDaily: game.lastDaily, lastVipChest: game.lastVipChest,
                 islandUnlocked: game.islandUnlocked, lastExpedition: game.lastExpedition,
                 playSeconds: game.playSeconds, storyTasks: game.storyTasks, premiumTasks: game.premiumTasks,
-                refEarnings: game.refEarnings, referrals: game.referrals
-            });
+                refEarnings: game.refEarnings, referrals: game.referrals,
+                lastSaved: Date.now()
+            };
+            game._lastSaved = dataToSave.lastSaved;
+            database.ref('users/' + currentUser.uid).update(dataToSave).catch(e => console.error("Ошибка сохранения:", e));
         } else if(isGuest) {
             localStorage.setItem("minerEmpireSave", JSON.stringify(game));
         }
@@ -1347,8 +1392,61 @@
         return `${sec}сек`;
     }
 
-    // Инициализация
-    function init() {
+    // ГЛАВНАЯ ИНИЦИАЛИЗАЦИЯ
+    async function initApp() {
+        try {
+            // Инициализируем Firebase
+            await initializeFirebase();
+            document.getElementById("loadingText").innerText = "🔐 Авторизация...";
+            
+            // Ждем готовности auth
+            await new Promise(resolve => auth.onAuthStateChanged(resolve));
+            
+            // Авторизуемся
+            await initTelegramAuth();
+            
+            // Привязываем события
+            bindEvents();
+            
+            // Запускаем игровые циклы
+            setInterval(() => { 
+                if(!isGuest) game.playSeconds++; 
+                updateUI(); 
+                saveToFirebase(); 
+            }, 1000);
+            
+            setInterval(() => { 
+                updatePending(); 
+                if(game.vipActive && game.vipExpire < Date.now()) {
+                    game.vipActive = false;
+                    updateUI();
+                }
+                saveToFirebase(); 
+            }, 1000);
+            
+            setInterval(() => saveToFirebase(), 10000);
+            
+            updateUI(); 
+            renderMiners(); 
+            renderShop(); 
+            renderStoryTasks(); 
+            renderPremiumTasks(); 
+            renderIsland();
+            
+            // Скрываем загрузку
+            document.getElementById("loadingOverlay").style.display = "none";
+            document.getElementById("gameContainer").style.display = "block";
+            
+        } catch(e) {
+            console.error("Ошибка инициализации:", e);
+            document.getElementById("loadingOverlay").innerHTML = 
+                '<div style="text-align:center; padding:20px;">❌ Ошибка инициализации<br>' +
+                '<small>' + e.message + '</small><br>' +
+                '<button onclick="location.reload()" class="btn-glow" style="margin-top:20px;">Перезагрузить</button></div>';
+        }
+    }
+
+    function bindEvents() {
         document.getElementById("collectBtn")?.addEventListener("click", collect);
         document.getElementById("exchangeBtn")?.addEventListener("click", exchangeDiamonds);
         document.getElementById("exchangeAllBtn")?.addEventListener("click", exchangeAll);
@@ -1364,9 +1462,10 @@
             if(link) { navigator.clipboard.writeText(link); showToast("Ссылка скопирована"); }
         });
         document.getElementById("createPremiumTaskBtn")?.addEventListener("click", createPremiumTask);
-        document.getElementById("telegramAuthBtn")?.addEventListener("click", () => {
-            if(initTelegramAuth()) return;
-            window.open("https://t.me/minermine1_bot", "_blank");
+        document.getElementById("telegramAuthBtn")?.addEventListener("click", async () => {
+            document.getElementById("loadingOverlay").style.display = "flex";
+            await initTelegramAuth();
+            document.getElementById("loadingOverlay").style.display = "none";
         });
         document.getElementById("guestModeBtn")?.addEventListener("click", () => {
             isGuest = true;
@@ -1377,24 +1476,6 @@
             if(saved) {
                 try { Object.assign(game, JSON.parse(saved)); }
                 catch(e) { console.error(e); }
-            } else {
-                game = {
-                    diamonds: 0, gold: 10000, oil: 0, bucks: 0, superBucks: 0,
-                    miners: [0,0,0,0,0,0,0,0], pending: 0, totalMined: 0,
-                    prestigeMult: 1.0, prestigeCount: 0, vipActive: false, vipExpire: 0,
-                    lastDaily: 0, lastVipChest: 0, islandUnlocked: false, lastExpedition: 0,
-                    playSeconds: 0, referralCode: "GUEST"+Math.random().toString(36).substring(2,8),
-                    referredBy: "", referrals: [], refEarnings: 0,
-                    storyTasks: [
-                        { name:"💎 Алмазный ручей", need:1000, current:0, rewardOil:0, rewardGold:200, type:"mine" },
-                        { name:"💎 Алмазная лавина", need:1000000, current:0, rewardOil:1, rewardGold:0, type:"mine" },
-                        { name:"🏗️ Шахтный инвестор", need:5, current:0, rewardOil:0, rewardGold:300, type:"buy" },
-                        { name:"🏗️ Магнат", need:50, current:0, rewardOil:1, rewardGold:0, type:"buy" },
-                        { name:"🎁 Коллекционер", need:3, current:0, rewardOil:0, rewardGold:250, type:"openBox" },
-                        { name:"🎁 Архивариус", need:20, current:0, rewardOil:1, rewardGold:0, type:"openBox" }
-                    ],
-                    premiumTasks: []
-                };
             }
             updateUI(); renderMiners(); renderShop(); renderStoryTasks(); renderPremiumTasks(); renderIsland();
             showToast("Гостевой режим. Прогресс не сохраняется при очистке кэша!");
@@ -1424,24 +1505,12 @@
             });
         });
         document.querySelector(".currency-option")?.classList.add("selected");
-
-        if(window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            initTelegramAuth();
-        }
-
-        setInterval(() => { if(!isGuest) game.playSeconds++; updateUI(); saveToFirebase(); }, 1000);
-        setInterval(() => { updatePending(); if(game.vipActive && game.vipExpire < Date.now()) game.vipActive = false; saveToFirebase(); }, 1000);
-        setInterval(() => saveToFirebase(), 10000);
-        
-        updateUI(); renderMiners(); renderShop(); renderStoryTasks(); renderPremiumTasks(); renderIsland();
     }
 
-    // Ждём загрузку Firebase
-    if(database && auth) {
-        init();
-    }
+    // Запускаем приложение
+    document.addEventListener('DOMContentLoaded', () => {
+        initApp();
+    });
 </script>
 </body>
 </html>
