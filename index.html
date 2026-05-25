@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,6 +10,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
@@ -349,21 +349,6 @@
             .item-buttons { justify-content: flex-end; }
             .rate-item { font-size: 0.7rem; padding: 3px 8px; }
         }
-        .start-screen {
-            text-align: center;
-            padding: 30px 20px;
-        }
-        .start-btn {
-            background: linear-gradient(135deg, #c47dff, #9b4dff);
-            border: none;
-            border-radius: 60px;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            margin-top: 20px;
-        }
         .guest-badge {
             background: #3a2a5a;
             border-radius: 20px;
@@ -549,7 +534,7 @@
         { level:7, name:"⛏️ Шахтёр Lv.7", hourly:100000, costGold:300000, prodSec: 100000/3600 }
     ];
 
-    // Начальное состояние игры
+    // ==== ЛОГИКА БЕЗ БАЗЫ ДАННЫХ (только localStorage) ====
     let game = {
         diamonds: 0,
         gold: 10000,
@@ -587,12 +572,10 @@
     let selectedCurrency = "💎";
     let leaderboard = [];
 
-    // Генерация кода
     function generateCode() {
         return "MINER" + Math.random().toString(36).substring(2, 10).toUpperCase();
     }
 
-    // Сохранение и загрузка
     function saveGame() {
         localStorage.setItem("minersEmpireSave", JSON.stringify(game));
         updateLeaderboard();
@@ -604,7 +587,6 @@
             try {
                 let loaded = JSON.parse(saved);
                 Object.assign(game, loaded);
-                // Восстанавливаем структуру
                 game.miners = game.miners || [0,0,0,0,0,0,0,0];
                 game.storyTasks = game.storyTasks || [
                     { name:"💎 Алмазный ручей", need:1000, current:0, rewardOil:0, rewardGold:200, type:"mine" },
@@ -621,7 +603,6 @@
         }
         if(!game.referralCode) game.referralCode = generateCode();
         
-        // Проверка реферальной ссылки при загрузке
         let params = new URLSearchParams(window.location.search);
         let ref = params.get('ref');
         if(ref && !game.referredBy && ref !== game.referralCode) {
@@ -630,14 +611,13 @@
             showToast("🎉 +5000💰 за реферальную ссылку!");
             saveGame();
             
-            // Добавляем реферала в список пригласившего
             let referrerData = localStorage.getItem("minersEmpireSave_" + ref);
             if(referrerData) {
                 try {
                     let refData = JSON.parse(referrerData);
                     if(!refData.referrals.includes(game.referralCode)) {
                         refData.referrals.push(game.referralCode);
-                        refData.gold += 5000;
+                        refData.gold = (refData.gold || 0) + 5000;
                         localStorage.setItem("minersEmpireSave_" + ref, JSON.stringify(refData));
                     }
                 } catch(e) {}
@@ -653,7 +633,6 @@
         loadLeaderboard();
     }
 
-    // Функция для начисления 5% рефералу при трате доната
     function giveReferralReward(referrerCode, amount) {
         if(amount < 1) return;
         let referrerData = localStorage.getItem("minersEmpireSave_" + referrerCode);
@@ -668,7 +647,6 @@
         }
     }
 
-    // Сохранение данных реферала отдельно
     function saveReferralData() {
         localStorage.setItem("minersEmpireSave_" + game.referralCode, JSON.stringify({
             bucks: game.bucks,
@@ -678,7 +656,6 @@
         }));
     }
 
-    // Расчёт дохода
     function getTotalProd() {
         let total = 0;
         for(let i=1;i<=7;i++) total += game.miners[i] * minersData[i].prodSec;
@@ -713,7 +690,6 @@
         saveGame();
     }
 
-    // Обновление сюжетных заданий
     function updateStoryTasks(type, amount) {
         game.storyTasks.forEach(t => {
             if(t.type === type) {
@@ -733,11 +709,9 @@
         saveGame();
     }
 
-    // Рандом
     function randomRange(min,max) { return Math.floor(Math.random()*(max-min+1)+min); }
     function isProfitable() { return Math.random() < 0.05; }
 
-    // Дропы боксов
     function bronzeDrop() {
         if(isProfitable()) {
             return { gold: randomRange(800,1000), diamonds: randomRange(8000,10000), bucks: randomRange(30,40), superBucks: randomRange(120,150), miners: { level:1, count: randomRange(1,2) } };
@@ -828,7 +802,7 @@
     function showToast(msg) {
         let t = document.createElement("div");
         t.innerText = msg;
-        t.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#221b33; color:#f0deff; padding:8px 20px; border-radius:60px; backdrop-filter:blur(8px); z-index:9999; font-size:0.9rem;";
+        t.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#221b33; color:#f0deff; padding:8px 20px; border-radius:60px; backdrop-filter:blur(8px); z-index:9999; font-size:0.9rem; pointer-events:none;";
         document.body.appendChild(t);
         setTimeout(()=>t.remove(), 2500);
     }
@@ -841,7 +815,6 @@
         modal.querySelector(".close-modal-btn").onclick = () => modal.remove();
     }
 
-    // Игровые действия
     function collect() {
         if(game.pending <= 0) { showToast("Нет алмазов для сбора"); return; }
         let gain = Math.floor(game.pending);
@@ -930,7 +903,6 @@
     function openPremiumBox(boxId) {
         let box = premiumBoxes[boxId];
         if(game.bucks < box.price) { showToast(`Нужно ${box.price} 💵`); return; }
-        // Тратим донат - начисляем 5% рефералу
         game.bucks -= box.price;
         game.totalDonatedSpent = (game.totalDonatedSpent || 0) + box.price;
         if(game.referredBy && game.referredBy !== "") {
@@ -1014,7 +986,6 @@
         updateLeaderboard();
     }
 
-    // Остров
     function buyIsland() {
         if(game.islandUnlocked) return showToast("Остров уже куплен");
         if(game.oil >= 100) { 
@@ -1053,7 +1024,6 @@
         updateLeaderboard();
     }
 
-    // Бонусы
     function dailyReward() {
         let now = Date.now();
         if(game.lastDaily && (now - game.lastDaily) < 24*3600*1000) { 
@@ -1099,7 +1069,6 @@
         saveGame();
     }
 
-    // Премиум-задания
     function createPremiumTask() {
         let desc = document.getElementById("taskDesc").value.trim();
         let link = document.getElementById("taskLink").value.trim();
@@ -1151,7 +1120,6 @@
         updateUI();
     }
 
-    // Топ
     function updateLeaderboard() {
         let playerName = "Шахтёр_" + game.referralCode.slice(-6);
         let existing = leaderboard.findIndex(p => p.name === playerName);
@@ -1186,7 +1154,6 @@
         });
     }
 
-    // Отрисовка UI
     function renderMiners() {
         let cont = document.getElementById("minersList");
         if(!cont) return;
@@ -1362,15 +1329,21 @@
     function clearProgress() {
         if(confirm("⚠️ ВНИМАНИЕ! Это действие удалит весь ваш прогресс. Вы уверены?")) {
             localStorage.removeItem("minersEmpireSave");
+            localStorage.removeItem("minerLeaderboard");
+            for(let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if(key && key.startsWith("minersEmpireSave_")) {
+                    localStorage.removeItem(key);
+                    i--;
+                }
+            }
             location.reload();
         }
     }
 
-    // Инициализация
     function init() {
         loadGame();
         
-        // Обработчики событий
         document.getElementById("collectBtn")?.addEventListener("click", collect);
         document.getElementById("exchangeBtn")?.addEventListener("click", exchangeDiamonds);
         document.getElementById("exchangeAllBtn")?.addEventListener("click", exchangeAll);
@@ -1390,7 +1363,6 @@
         document.getElementById("clearProgressBtn")?.addEventListener("click", clearProgress);
         document.getElementById("refreshTopBtn")?.addEventListener("click", loadLeaderboard);
 
-        // Навигация
         document.querySelectorAll(".nav-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
@@ -1405,7 +1377,6 @@
             });
         });
 
-        // Выбор валюты для премиум-заданий
         document.querySelectorAll(".currency-option").forEach(opt => {
             opt.addEventListener("click", () => {
                 document.querySelectorAll(".currency-option").forEach(o => o.classList.remove("selected"));
@@ -1415,7 +1386,6 @@
         });
         document.querySelector(".currency-option")?.classList.add("selected");
 
-        // Таймеры
         setInterval(() => { game.playSeconds++; updateUI(); saveGame(); }, 1000);
         setInterval(() => { 
             updatePending(); 
@@ -1427,7 +1397,6 @@
         }, 1000);
         setInterval(() => saveGame(), 30000);
         
-        // Сохраняем данные реферала
         saveReferralData();
     }
 
